@@ -84,5 +84,26 @@ def main():
 
     print("[DEBUG] Rendering process completed")
 
+<<<<<<< HEAD
+def main():
+    # Example OpenAI query
+    user_input = "Give me the code for a horse."
+
+    # Get dynamic model code from OpenAI
+    dynamic_model_code = get_dynamic_model_code(user_input)
+    if not dynamic_model_code:
+        return  # Exit if API call failed
+
+    # Get permanent model code
+    permanent_model_code = get_permanent_model_code()
+
+    # Combine both codes
+    combined_scad_code = combine_scad_code(permanent_model_code, dynamic_model_code)
+
+    # Render the scene
+    render_scene(combined_scad_code)
+
+=======
+>>>>>>> parent of 60f237f (Included API call)
 if __name__ == "__main__":
     main()
