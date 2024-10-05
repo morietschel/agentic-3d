@@ -23,7 +23,7 @@ def openai_api_call(text_input):
         completion = client.beta.chat.completions.parse(
             model="gpt-4o-2024-08-06",
             messages=[
-                {"role": "system", "content": "You are a CAD agent that takes a user request and responds with a message object and executable OpenSCAD code."},
+                {"role": "system", "content": "You are a CAD agent that takes a user request and responds with a message object and executable OpenSCAD code. You only write CAD code to construct the object, never to render or display it."},
                 {"role": "user", "content": text_input}
             ],
             response_format=ResponseFormat
