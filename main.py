@@ -115,7 +115,9 @@ def render_scene(scad_code, scad_filename="scene.scad", output_image="scene.png"
 
 def main():
     # Example OpenAI query
-    user_input = "Give me the code for a designer chair."
+    user_input = (
+        "Give me the code for a designer chair used for sitting at a dining table."
+    )
 
     # Get dynamic model code from OpenAI
     dynamic_model_code = get_dynamic_model_code(user_input)
