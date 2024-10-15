@@ -1,5 +1,11 @@
 # config.py
 
+# Scene description
+SCENE_DESCRIPTION = "designer chair"
+
+# Max iterations
+MAX_ITERATIONS = 10
+
 # Rendering settings
 IMAGE_SIZE = (800, 600)    # Width, Height in pixels
 
