@@ -41,9 +41,12 @@ def render_model(scad_file, output_image):
     try:
         result = subprocess.run(cmd, check=True, capture_output=True, text=True)
         print(f"[DEBUG] Rendered image saved at: {output_path}")
+        return output_path
+    
     except subprocess.CalledProcessError as e:
         print(f"[ERROR] An error occurred during rendering: {e}")
         print(f"[ERROR] Return code: {e.returncode}")
         print(f"[ERROR] Command stderr: {e.stderr}")
+
     except Exception as e:
         print(f"[ERROR] An unexpected error occurred: {e}")
