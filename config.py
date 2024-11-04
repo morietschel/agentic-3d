@@ -1,7 +1,7 @@
 # config.py
 
 # Scene description
-SCENE_DESCRIPTION = "designer chair"
+SCENE_DESCRIPTION = "bridge with 3 lines"
 
 # Max iterations
 MAX_ITERATIONS = 10
