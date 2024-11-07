@@ -170,6 +170,10 @@ def get_error_based_on_image(openscad_image_path, description):
     return None
 
 
+# define dimension, always pass in permenent model.
+# bad when it's floating
+
+
 def get_improved_code_based_on_error(
     error_description, openscad_code, original_description
 ):
