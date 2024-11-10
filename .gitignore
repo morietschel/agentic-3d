@@ -1,3 +1,9 @@
 /renders/
 /models/
 .env
+.cache/41/cache.db
+.cache/42/cache.db
+__pycache__/autogen_utils.cpython-311.pyc
+__pycache__/config.cpython-311.pyc
+__pycache__/scad_utils.cpython-311.pyc
+main_autogen.py
