@@ -1,12 +1,8 @@
-# utils.py
-
 import os
 import subprocess
 
 from ._constants import (
-    CAMERA_ANGLE,
-    CAMERA_LOOK_AT,
-    CAMERA_POSITION,
+    CACHE_DB,
     IMAGE_SIZE,
     MODELS_DIR,
     PERMANENT_MODEL_CODE,
@@ -33,7 +29,12 @@ def combine_scad_code(dynamic_code: str) -> str:
 
 def save_openscad_code(scad_code: str, filename: str) -> str:
     """
-    Save the OpenSCAD code to a .scad file.
+    Save the provided OpenSCAD code to a specified .scad file.
+    Args:
+        scad_code (str): The OpenSCAD code to be saved.
+        filename (str): The name of the file to save the OpenSCAD code in.
+    Returns:
+        str: The filepath where the OpenSCAD code was saved.
     """
     os.makedirs(MODELS_DIR, exist_ok=True)
 
@@ -49,8 +50,19 @@ def save_openscad_code(scad_code: str, filename: str) -> str:
 
 def render_model(scad_filepath: str, output_image_file: str) -> str:
     """
-    Render the .scad file to an image using OpenSCAD.
+    Renders a 3D model from an OpenSCAD file and saves it as an image.
+    Args:
+        scad_filepath (str): The file path to the OpenSCAD (.scad) file.
+        output_image_file (str): The desired output image file name.
+    Returns:
+        str: The file path to the rendered image.
+    Raises:
+        subprocess.CalledProcessError: If the OpenSCAD rendering command fails.
+        Exception: If an unexpected error occurs during rendering.
+    Example:
+        rendered_image = render_model("path/to/model.scad", "output_image.png")
     """
+
     os.makedirs(RENDERS_DIR, exist_ok=True)
 
     rendered_image_path = os.path.join(RENDERS_DIR, output_image_file)
@@ -87,8 +99,13 @@ def render_scene(
     output_image_file: str = "scene.png",
 ) -> str:
     """
-    Saves the SCAD code to a file and renders it to an image.
-    Returns the output path.
+    Renders a 3D scene from OpenSCAD code and saves it as an image file.
+    Args:
+        scad_code (str): The OpenSCAD code to render.
+        scad_filename (str, optional): The filename to save the OpenSCAD code. Defaults to "scene.scad".
+        output_image_file (str, optional): The filename to save the rendered image. Defaults to "scene.png".
+    Returns:
+        str: The file path of the rendered image.
     """
     combined_scad_code = combine_scad_code(scad_code)
     scad_filepath = save_openscad_code(combined_scad_code, scad_filename)
@@ -96,3 +113,12 @@ def render_scene(
 
     print("[DEBUG] Rendering process completed.")
     return output_image_path
+
+
+def remove_cache():
+    """
+    Remove the cache database Autogen creates.
+    """
+    print("[DEBUG] Removing cache database.")
+    os.remove(CACHE_DB)
+    print("[DEBUG] Cache database removed successfully.")

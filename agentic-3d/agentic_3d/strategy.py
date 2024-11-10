@@ -1,4 +1,30 @@
 class BaseStrategy:
+    """
+    This module defines various strategies for generating OpenSCAD code prompts based on different user requirements.
+
+    Classes:
+        BaseStrategy:
+            A base class for all strategies. It defines the interface for creating prompts.
+
+        DirectStrategy(BaseStrategy):
+            A strategy that generates a direct OpenSCAD code prompt based on the user description.
+
+        Print3DStrategy(BaseStrategy):
+            A strategy that generates an OpenSCAD code prompt optimized for 3D printing, including appropriate tolerances and supports.
+
+        ArtisticStrategy(BaseStrategy):
+            A strategy that generates an OpenSCAD code prompt with a focus on artistic and sculptural interpretation, optimizing for aesthetic appeal.
+
+        DimensionStrategy(BaseStrategy):
+            A strategy that generates an OpenSCAD code prompt ensuring the object has specified dimensions.
+
+        FeatureStrategy(BaseStrategy):
+            A strategy that generates an OpenSCAD code prompt including specified features in the object description.
+
+        ConstraintStrategy(BaseStrategy):
+            A strategy that generates an OpenSCAD code prompt ensuring the object is made of a specified material and has specified properties.
+    """
+
     def __init__(self):
         self.name = "base"
 

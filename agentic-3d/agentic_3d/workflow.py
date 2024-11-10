@@ -1,35 +1,86 @@
-# TODO: this file is the workflow for the agents.
-import autogen as ag
-from autogen import AssistantAgent, ConversableAgent, UserProxyAgent
-from autogen.agentchat.contrib.multimodal_conversable_agent import (
-    MultimodalConversableAgent,
-)
-
 from ._constants import (
     DEFAULT_FEEDBACK_AGENT_SYSTEM_MESSAGE,
     DEFAULT_OPENSCAD_GENERATOR_AGENT_SYSTEM_MESSAGE,
-    LLM_CONFIG,
     MAX_ITERATIONS,
 )
 from .agents import AgentBuilder
-from .utils import render_scene
+from .utils import remove_cache, render_scene
 
 
 # TODO: could add tqdm for progress bar per iteration
 class Workflow:
-    def __init__(self, prompt: str):
-        self.initial_prompt = prompt
+    """
+    Workflow class to manage the iterative process of generating and refining OpenSCAD code
+    based on user feedback.
+    """
 
-    def run(
+    def __init__(
         self,
+        prompt: str,
         openscad_generator_system_message: str = DEFAULT_OPENSCAD_GENERATOR_AGENT_SYSTEM_MESSAGE,
         feedback_system_message: str = DEFAULT_FEEDBACK_AGENT_SYSTEM_MESSAGE,
     ):
-        ab = AgentBuilder(openscad_generator_system_message, feedback_system_message)
+        """
+        Initialize the Workflow with the given prompt and system messages.
 
-        designerAgent = ab.all_agents[0]
-        openSCAD_generatorAgent = ab.all_agents[1]
-        feedbackAgent = ab.all_agents[2]
+        Args:
+            prompt (str): The initial prompt to start the workflow.
+            openscad_generator_system_message (str, optional): System message for the OpenSCAD generator agent. Defaults to DEFAULT_OPENSCAD_GENERATOR_AGENT_SYSTEM_MESSAGE.
+            feedback_system_message (str, optional): System message for the feedback agent. Defaults to DEFAULT_FEEDBACK_AGENT_SYSTEM_MESSAGE.
+        """
+        self.initial_prompt = prompt
+        self.openscad_generator_system_message = openscad_generator_system_message
+        self.feedback_system_message = feedback_system_message
+
+        self.all_agents = self.build_agents()
+
+    def build_agents(self):
+        """
+        Build the agents required for the workflow.
+
+        Returns:
+            list: A list of agents built by the AgentBuilder.
+
+        Raises:
+            ValueError: If no agents are retrieved.
+        """
+        ab = AgentBuilder(
+            self.openscad_generator_system_message, self.feedback_system_message
+        )
+        if ab.all_agents is None:
+            raise ValueError(
+                "Retrieved No Agents. Check if Agents were built correctly."
+            )
+        return ab.all_agents
+
+    # TODO: can change all_agents to dictionary with keys as agent names for more clarity
+    def run(self, clear_cache: bool = False):
+        """
+        Executes the workflow for generating and iterating on OpenSCAD code with feedback loops.
+        Args:
+            clear_cache (bool): If True, clears the cache before starting the workflow so that
+            Autogen calls OpenAI API again. Default is False.
+        Returns:
+            list: A list of chat history objects containing summaries of the interactions between agents.
+        Workflow:
+            1. Optionally clears the cache if `clear_cache` is True.
+            2. Initializes the designer agent, OpenSCAD generator agent, and feedback agent.
+            3. Starts the first iteration by initiating a chat between the designer agent and OpenSCAD generator agent.
+            4. Renders the initial scene based on the generated OpenSCAD code.
+            5. Iteratively:
+            a. Sends the current render and description to the feedback agent for feedback.
+            b. Sends the feedback and current OpenSCAD code to the OpenSCAD generator agent for improvements.
+            c. Updates the feedback, OpenSCAD code, and rendered image.
+            d. Continues until the maximum number of iterations is reached.
+            6. Returns the chat history of all interactions.
+        """
+
+        if clear_cache:
+            remove_cache()
+
+        designerAgent = self.all_agents[0]
+        openSCAD_generatorAgent = self.all_agents[1]
+        feedbackAgent = self.all_agents[2]
 
         iteration = 0
 
@@ -49,7 +100,7 @@ class Workflow:
         feedback = self.initial_prompt
 
         while iteration < MAX_ITERATIONS:
-            print(f"--------Iteration {iteration}---------")
+            print(f"---------ITERATION {iteration}---------")
 
             chat_history = openSCAD_generatorAgent.initiate_chats(
                 [
@@ -85,4 +136,5 @@ class Workflow:
                 f"workflow_scene_{iteration}.scad",
                 f"workflow_scene_{iteration}.png",
             )
+            print(f"All {iteration} iterations completed.")
         return chat_history

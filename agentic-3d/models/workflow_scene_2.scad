@@ -13,73 +13,44 @@
     
 
     // Dynamic Model
-    translate([0, 0, 0]) {
-    // Seat with refined curves
+    union() {
+    // Seat
+    translate([0, 0, 5])
     difference() {
-        hull() {
-            for (a = [0 : 10 : 360]) {
-                r = 25 + (3 * sin(a));
-                rotate([0, 0, a])
-                    translate([0, r, 0])
-                        circle(r=3, center=true);
-            }
-        }
+        cube([50, 50, 5], center=true); // Main seat
         translate([0, 0, -1])
-            cube([50, 50, 1], center=true);
+        cube([48, 48, 6], center=true); // Cutout for better contact with the print bed
     }
 
-    // Ergonomic backrest
-    translate([0, 20, 5]) {
-        difference() {
-            rotate([0, 90, 0]) {
-                scale([0.6, 1, 1])
-                    rotate_extrude(angle=180)
-                        translate([0, 12, 0])
-                            circle(r=25);
-            }
-            translate([-8, -0.5, 0])
-                cube([40, 5, 30], center=true);
-        }
-    }
-    
-    // Customized legs for stability and support
-    for (x = [-20, 20]) {
-        for (y = [-20, 20]) {
-            translate([x, y, -5]) {
-                difference() {
-                    scale([1, 1, 1.2])
-                        cube([8, 8, 25], center=true);
-                    translate([-3, -3, 0])
-                        cube([14, 14, 2], center=true);
-                }
-            }
-        }
-    }
+    // Backrest
+    translate([0, -25, 10])
+    rotate([15, 0, 0])
+    cube([50, 5, 30], center=true); // Angled backrest
 
-    // Stylish armrests with additional contour
-    for (x = [-1, 1]) {
-        translate([22 * x, 0, 12]) {
-            difference() {
-                rotate_extrude(angle=180)
-                    translate([0, 15, 0])
-                        circle(r=2);
-                translate([-7, -0.5, 0])
-                    cube([16, 5, 5], center=true);
-            }
-        }
-    }
+    // Side supports for the backrest
+    translate([-26, -25, 10])
+    cube([4, 40, 10], center=true); // Left support
+    translate([26, -25, 10])
+    cube([4, 40, 10], center=true); // Right support
 
-    // Textured detailing on seat surface
-    for (i = [-15, -5, 5, 15]) {
-        for (j = [-15, -5, 5, 15]) {
-            translate([i, j, 0.5]) {
-                difference() {
-                    cylinder(h=1, r=0.75, center=true);
-                    translate([-1, -1, -0.5])
-                        cube([2, 2, 1], center=true);
-                }
-            }
-        }
-    }
+    // Front legs
+    translate([-20, -20, 0])
+    cube([5, 5, 25], center=true); // Left front leg
+    translate([-20, 20, 0])
+    cube([5, 5, 25], center=true); // Right front leg
+
+    // Rear legs
+    translate([20, -20, 0])
+    cube([5, 5, 25], center=true); // Left rear leg
+    translate([20, 20, 0])
+    cube([5, 5, 25], center=true); // Right rear leg
+
+    // Optional Armrests
+    translate([-30, -15, 15])
+    rotate([0, 0, -15])
+    cube([30, 5, 5], center=true); // Left armrest
+    translate([30, -15, 15])
+    rotate([0, 0, 15])
+    cube([30, 5, 5], center=true); // Right armrest
 }
     

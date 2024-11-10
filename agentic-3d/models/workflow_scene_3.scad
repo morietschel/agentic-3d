@@ -13,72 +13,64 @@
     
 
     // Dynamic Model
-    translate([0, 0, 0]) {
-    // Chair seat
+    union() {
+    // Seat with a slight curve for comfort
+    translate([0, 0, 5])
     difference() {
         hull() {
-            for (a = [0 : 10 : 360]) {
-                r = 22 + (2 * sin(a));
-                rotate([0, 0, a])
-                    translate([0, r, 0])
-                        circle(r=4, center=true);
-            }
+            translate([-25, -25, 0]) circle(r=25);
+            translate([25, -25, 0]) circle(r=25);
+            translate([-25, 25, 0]) circle(r=25);
+            translate([25, 25, 0]) circle(r=25);
         }
         translate([0, 0, -1])
-            cube([50, 50, 1], center=true);
+        hull() {
+            translate([-24, -24, 0]) circle(r=24);
+            translate([24, -24, 0]) circle(r=24);
+            translate([-24, 24, 0]) circle(r=24);
+            translate([24, 24, 0]) circle(r=24);
+        }
     }
 
     // Ergonomic backrest
-    translate([0, 0, 12]) {
-        difference() {
-            rotate([0, 90, 0]) {
-                scale([0.4, 1, 1])
-                    rotate_extrude(angle=180)
-                        translate([0, 10, 0])
-                            circle(r=18);
-            }
-            translate([-9, -0.5, 0])
-                cube([34, 5, 22], center=true);
-        }
-    }
-    
-    // Stable legs
-    for (x = [-16, 16]) {
-        for (y = [-16, 16]) {
-            translate([x, y, -5]) {
-                difference() {
-                    cube([10, 10, 25], center=true);
-                    translate([-2, -2, 0])
-                        cube([14, 14, 2], center=true);
-                }
-            }
-        }
+    translate([0, -25, 15])
+    rotate([15, 0, 0])
+    linear_extrude(height=30) {
+        polygon(points=[[0,0], [-25,30], [25,30]]);
     }
 
-    // Stylish armrests
-    for (x = [-1, 1]) {
-        translate([22 * x, 0, 15]) {
-            difference() {
-                rotate_extrude(angle=180)
-                    translate([0, 12, 0])
-                        circle(r=1.5);
-                translate([-5, -0.5, 0])
-                    cube([12, 5, 3], center=true);
-            }
-        }
+    // Front legs with a tapered design
+    translate([-15, -15, 0])
+    linear_extrude(height=25) {
+        polygon(points=[[0,0], [5,0], [3,-10], [-3,-10], [-5,0]]);
+    } 
+    translate([-15, 15, 0])
+    linear_extrude(height=25) {
+        polygon(points=[[0,0], [5,0], [3,-10], [-3,-10], [-5,0]]);
+    } 
+
+    // Rear legs with a slightly larger tapered design
+    translate([15, -15, 0])
+    linear_extrude(height=30) {
+        polygon(points=[[0,0], [6,0], [4,-12], [-4,-12], [-6,0]]);
+    } 
+    translate([15, 15, 0])
+    linear_extrude(height=30) {
+        polygon(points=[[0,0], [6,0], [4,-12], [-4,-12], [-6,0]]);
     }
 
-    // Textured seat surface
-    for (i = [-12, -4, 4, 12]) {
-        for (j = [-12, -4, 4, 12]) {
-            translate([i, j, 0.5]) {
-                difference() {
-                    cylinder(h=1, r=0.75, center=true);
-                    translate([-1, -1, -0.5])
-                        cube([2, 2, 1], center=true);
-                }
-            }
-        }
+    // Optional curved armrests
+    translate([-30, 0, 15])
+    rotate([0, 0, 30])
+    linear_extrude(height=5)
+    offset(r=5) {
+        polygon(points=[[0,0], [25,0], [20,-5], [5,-5]]);
+    }
+    translate([30, 0, 15])
+    rotate([0, 0, -30])
+    linear_extrude(height=5)
+    offset(r=5) {
+        polygon(points=[[0,0], [25,0], [20,-5], [5,-5]]);
     }
 }
     

@@ -13,77 +13,64 @@
     
 
     // Dynamic Model
+    union() {
+    // Base seat of the chair
     translate([0, 0, 0]) {
-    // Chair seat dimensions
-    seat_height = 10;  // Adjusted for better height
-    seat_width = 50; 
-    seat_depth = 45; 
-    difference() {
-        cube([seat_width, seat_depth, seat_height], center=true); // Main seat
-        translate([-18, -18, -0.1]) 
-            cylinder(h=3, r=2, center=true); // Cutout for lighter seat
-    }
-
-    // Ergonomic backrest with a smooth curve
-    backrest_height = 30; 
-    backrest_width = 50; 
-    translate([0, -22, seat_height]) {
-        rotate_extrude(angle=180) {
-            translate([0, 8, 0])
-                circle(r=20); // Smooth backrest curve
+        difference() {
+            cube([50, 50, 4], center = true);
+            translate([0, 0, -1])
+            cube([48, 48, 4], center = true);
         }
     }
 
-    // Chair legs with strength and stability
-    leg_height = 15; 
-    leg_thickness = 6;  // Thicker legs for more stability
-    for (x = [-1, 1]) {
-        for (y = [-1, 1]) {
-            translate([20 * x, 22 * y, -leg_height]) {
-                cube([leg_thickness, leg_thickness, leg_height], center=true); // All four legs
+    // Backrest with ergonomic angle
+    translate([0, -25, 4]) {
+        rotate([15, 0, 0]) {
+            translate([-20, 0, 0])
+            linear_extrude(height = 4) {
+                polygon(points=[[0, 0], [40, 0], [20, 20]]);
             }
         }
     }
 
-    // Curved armrests for comfort
-    armrest_thickness = 5; 
-    for (x = [-1, 1]) {
-        translate([25 * x, -25, 10]) {
-            difference() {
-                scale([1, 0.5, 1])
-                    rotate_extrude(angle=180)
-                        translate([0, 4, 0])
-                        circle(r=7); // Wider armrest contour
-                translate([-6, -0.5, 0])
-                    cube([12, 1, armrest_thickness], center=true); // Armrest thickness
+    // Chair legs
+    for (x = [-20, 20]) {
+        for (y = [-20, 20]) {
+            translate([x, y, -10]) {
+                cylinder(r = 6, h = 15, center = false);
             }
         }
     }
 
-    // Base for added stability 
-    base_height = 5; 
-    base_width = 70; 
-    base_depth = 60; 
-    translate([0, 0, -base_height]) {
-        cube([base_width, base_depth, base_height], center=true); // Base platform
-    }
-    
-    // Tolerance cuts for leg attachment
-    tolerance_height = 2;  // Reduced tolerance height for snug fit
-    translate([-24, -21, seat_height]) {
-        cube([6, 6, tolerance_height], center=true); // Tolerance cutout for leg attachment
-    }
-    
-    translate([24, -21, seat_height]) {
-        cube([6, 6, tolerance_height], center=true); // Tolerance cutout for leg attachment
+    // Armrests with a smooth profile
+    for (x = [-24, 24]) {
+        translate([0, x, 6]) {
+            rotate([0, 0, 0]) {
+                linear_extrude(height = 3) {
+                    offset(delta = 0.5) {
+                        polygon(points=[[0, 0], [20, 0], [18, 4], [2, 4]]);
+                    }
+                }
+            }
+        }
     }
 
-    translate([-24, 21, seat_height]) {
-        cube([6, 6, tolerance_height], center=true); // Tolerance cutout for leg attachment
+    // Cross supports for stability
+    translate([0, 0, -2]) {
+        difference() {
+            cube([36, 3, 2], center = true);
+            translate([0, 0, -3])
+            cube([2, 36, 2], center = true);
+        }
     }
 
-    translate([24, 21, seat_height]) {
-        cube([6, 6, tolerance_height], center=true); // Tolerance cutout for leg attachment
+    // Decorative side cutouts
+    translate([-15, -15, 2]) {
+        difference() {
+            cube([30, 30, 2], center = true);
+            translate([-5, -12, 0])
+            cube([10, 24, 2], center = true);
+        }
     }
 }
     

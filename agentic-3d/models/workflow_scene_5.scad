@@ -13,59 +13,51 @@
     
 
     // Dynamic Model
-    translate([0, 0, 0]) {
-    // Chair seat
+    union() {
+    // Define the seat of the chair with a broader shape for comfort
+    translate([0, 0, 5])
     difference() {
-        cube([50, 50, 3], center=true);
-        translate([-18, -18, -0.1]) 
-            cylinder(h=5, r=2, center=true);
+        scale([1, 1, 0.5])
+        cube([50, 50, 10], center=true);
+        translate([0, 0, -1])
+        scale([1, 1, 0.5])
+        cube([48, 48, 10], center=true);
     }
 
-    // Ergonomic backrest
-    translate([0, -25, 15]) {
-        linear_extrude(height=15) {
-            polygon(points=[[0, 0], [20, 5], [15, 20], [-15, 20], [-20, 5]], paths=[[0, 1, 2, 3, 4]]);
-        }
+    // Create an ergonomic backrest with a distinct curve
+    translate([0, -25, 15])
+    rotate([15, 0, 0])
+    difference() {
+        scale([1, 1, 0.5])
+        rotate_extrude(angle=180)
+        translate([20, 0, 0])
+        circle(r=5);
+        translate([-10, -10, 5])
+        rotate_extrude(angle=180)
+        translate([20, 0, 0])
+        circle(r=6);
     }
 
-    // Stylized legs
+    // Design functional, straight legs for stability
     for (x = [-20, 20]) {
-        for (y = [-20, 20]) {
-            translate([x, y, -5]) {
-                difference() {
-                    cube([10, 10, 30], center=true);
-                    translate([-2, -2, 0])
-                        cube([14, 14, 2], center=true);
-                }
-            }
-        }
+        translate([x, -25, 0])
+        cube([5, 5, 25], center=false);
     }
 
-    // Armrests
-    for (x = [-1, 1]) {
-        translate([24 * x, -25, 10]) {
-            difference() {
-                scale([1, 0.5, 1])
-                    rotate_extrude(angle=180)
-                        translate([0, 10, 0])
-                            circle(r=3);
-                translate([-8, -0.5, 0])
-                    cube([16, 1, 5], center=true);
-            }
-        }
+    // Adding the rear legs with a slight angle for aesthetics
+    for (x = [-20, 20]) {
+        translate([x, 25, 0])
+        rotate([0, 20, 0])
+        cube([5, 5, 30], center=false);
     }
 
-    // Wider base for stability
-    translate([0, 0, -3]) {
-        cube([60, 60, 5], center=true);
-    }
-
-    // Seat surface texture
-    for (i = [-14, -6, 6, 14]) {
-        for (j = [-14, -6, 6, 14]) {
-            translate([i, j, 2]) {
-                cylinder(h=2, r=0.6, center=true);
-            }
+    // Optional armrests, designed to enhance comfort
+    for (x = [-30, 30]) {
+        translate([x, 0, 15])
+        rotate([0, 0, 15 * sign(x)])
+        linear_extrude(height=5)
+        offset(r=1) {
+            polygon(points=[[0,0], [25,0], [20,-5], [5,-5]]);
         }
     }
 }

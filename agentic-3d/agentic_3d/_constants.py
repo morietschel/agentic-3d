@@ -1,5 +1,8 @@
 import os
 
+# Seed for consistency
+RANDOM_SEED = 42
+
 # Scene description
 DEFAULT_USER_DESCRIPTION = "designer chair"
 
@@ -27,6 +30,7 @@ PERMANENT_MODEL_CODE = """
 # File Paths
 MODELS_DIR = "../models"
 RENDERS_DIR = "../renders"
+CACHE_DB = "../notebooks/.cache/41/cache.db"
 
 # LLM Configuration
 LLM_CONFIG = {

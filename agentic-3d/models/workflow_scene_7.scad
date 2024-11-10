@@ -13,60 +13,63 @@
     
 
     // Dynamic Model
-    translate([0, 0, 0]) {
-    // Chair seat
-    bottom_seat = 3; 
-    seat_width = 50; 
-    seat_depth = 45; 
+    union() {
+    // Define the ergonomic seat of the chair with improved proportions
+    translate([0, 0, 5])
     difference() {
-        cube([seat_width, seat_depth, bottom_seat], center=true); // Seat
-        translate([-18, -18, -0.1]) 
-            cylinder(h=5, r=2, center=true); // Cutout for lighter seat
+        scale([1.1, 1.1, 0.5])
+        cube([45, 45, 8], center=true);
+        translate([0, 0, -0.5])
+        scale([1, 1, 0.5])
+        cube([43, 43, 8], center=true);
     }
 
-    // Ergonomic backrest with an incline for comfort
-    backrest_angle = 20; 
-    backrest_height = 30; 
-    translate([0, -22, bottom_seat]) {
-        linear_extrude(height=backrest_height) {
-            polygon(points=[[0, 0], [20, 0], [25, backrest_angle], [-25, backrest_angle], [-20, 0]], paths=[[0, 1, 2, 3, 4]]);
+    // Create a more defined and stylish curved backrest
+    translate([0, -30, 10])
+    rotate([25, 0, 0])
+    difference() {
+        scale([1, 1, 0.5])
+        rotate_extrude(angle=180)
+        translate([15, 0, 0])
+        circle(r=7);
+        translate([-10, -10, 5])
+        rotate_extrude(angle=180)
+        translate([15, 0, 0])
+        circle(r=8);
+    }
+
+    // Design stable splayed legs for aesthetic and strength
+    for (x = [-17.5, 17.5]) {
+        translate([x, -23, 0])
+        rotate([0, 0, -15 * sign(x)]) {
+            cylinder(r=2, h=25, center=false);
         }
     }
 
-    // Simplified legs with stability features
-    leg_height = 20; 
-    leg_thickness = 5; 
-    for (x = [-1, 1]) {
-        translate([20 * x, -22, -leg_height]) {
-            cube([leg_thickness, leg_thickness, leg_height], center=true); // Front legs
-        }
-    }
-    for (x = [-1, 1]) {
-        translate([20 * x, 22, -leg_height]) {
-            cube([leg_thickness, leg_thickness, leg_height], center=true); // Back legs
+    // Adding tapered rear legs for style and stability
+    for (x = [-17.5, 17.5]) {
+        translate([x, 23, 0])
+        rotate([0, 15, 0]) {
+            cylinder(r=2, h=30, center=false);
         }
     }
 
-    // Armrests with a modern curve
-    armrest_thickness = 10; 
-    for (x = [-1, 1]) {
-        translate([24 * x, -25, 10]) {
-            difference() {
-                scale([1, 0.5, 1])
-                    rotate_extrude(angle=180)
-                        translate([0, 10, 0])
-                        circle(r=3);
-                translate([-6, -0.5, 0])
-                    cube([12, 1, armrest_thickness], center=true); // Armrest thickness
-            }
+    // Optional modern armrests with smooth lines
+    for (x = [-30, 30]) {
+        translate([x, 0, 12])
+        rotate([0, 0, 15 * sign(x)])
+        linear_extrude(height=5)
+        offset(r=0.5) {
+            polygon(points=[[0,0], [22,0], [18,-3], [4,-3]]);
         }
     }
 
-    // Wider base for overall stability
-    base_width = 70; 
-    base_depth = 60; 
-    translate([0, 0, -3]) {
-        cube([base_width, base_depth, 5], center=true); // Larger base for stability
+    // Adding decorative cutouts to enhance aesthetic appeal
+    translate([-22, 0, 6])
+    difference() {
+        cube([10, 45, 2], center=true);
+        translate([1, 4, 0])
+        cube([8, 36, 2], center=true);
     }
 }
     

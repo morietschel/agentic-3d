@@ -13,50 +13,62 @@
     
 
     // Dynamic Model
-    translate([0, 0, 0]) {
-    // Chair seat
+    union() {
+    // Define the ergonomic seat of the chair
+    translate([0, 0, 5])
     difference() {
-        cube([50, 50, 3], center=true); // Seat
-        translate([-18, -18, -0.1]) 
-            cylinder(h=5, r=2, center=true); // Cutout for lighter seat
+        scale([1.1, 1.1, 0.5])
+        cube([48, 48, 8], center=true);
+        translate([0, 0, -0.5])
+        scale([1, 1, 0.5])
+        cube([46, 46, 8], center=true);
     }
 
-    // Ergonomic backrest with a slanted design
-    translate([0, -25, 12]) {
-        linear_extrude(height=12) {
-            polygon(points=[[0, 0], [20, 5], [30, 20], [30, 0], [-30, 0], [-30, 20], [-20, 5]], paths=[[0, 1, 2, 3, 4, 5, 6]]);
-        }
+    // Create a curved backrest for comfort
+    translate([0, -25, 13])
+    rotate([20, 0, 0])
+    difference() {
+        scale([1, 1, 0.5])
+        rotate_extrude(angle=180)
+        translate([15, 0, 0])
+        circle(r=6);
+        translate([-10, -10, 10])
+        rotate_extrude(angle=180)
+        translate([15, 0, 0])
+        circle(r=7);
     }
 
-    // Simplified legs with wider base for stability
+    // Design strong, slightly tapered legs for aesthetic and stability
     for (x = [-20, 20]) {
-        translate([x, -20, -5]) {
-            cube([8, 8, 25], center=true); // Simplified leg
+        translate([x, -25, 0])
+        rotate([0, 0, 10 * sign(x)]) {
+            cube([5, 5, 25], center=false);
         }
     }
+
+    // Adding angled rear legs for style
     for (x = [-20, 20]) {
-        translate([x, 20, -5]) {
-            cube([8, 8, 25], center=true); // Another leg
+        translate([x, 25, 0])
+        rotate([0, 15, 0])
+        cube([5, 5, 30], center=false);
+    }
+
+    // Optional armrests with a modern curvature
+    for (x = [-30, 30]) {
+        translate([x, 0, 12])
+        rotate([0, 0, 25 * sign(x)])
+        linear_extrude(height=5)
+        offset(r=1) {
+            polygon(points=[[0,0], [25,0], [20,-5], [5,-5]]);
         }
     }
 
-    // Armrests with ergonomic curve
-    for (x = [-1, 1]) {
-        translate([24 * x, -25, 10]) {
-            difference() {
-                scale([1, 0.5, 1])
-                    rotate_extrude(angle=180)
-                        translate([0, 8, 0]) // Adjusted to produce a nicer armrest
-                        circle(r=3);
-                translate([-6, -0.5, 0])
-                    cube([12, 1, 5], center=true); // Thinner armrest block for aesthetic
-            }
-        }
-    }
-
-    // Wider base for overall stability
-    translate([0, 0, -3]) {
-        cube([65, 65, 5], center=true); // Larger base
+    // Adding decorative cutouts to enhance aesthetic
+    translate([-25, 0, 8])
+    difference() {
+        cube([10, 40, 2], center=true);
+        translate([1, 3, 0])
+        cube([8, 34, 2], center=true);
     }
 }
     
