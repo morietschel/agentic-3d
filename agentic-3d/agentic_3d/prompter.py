@@ -21,10 +21,3 @@ class Prompter:
         if not self.prompts:
             self.generate_all_prompts()
         return self.prompts
-
-
-# Example usage:
-# strategy = SimpleStrategy()
-# prompter = Prompter("Describe your project", strategy)
-# prompt = prompter.generate_prompt()
-# print(prompt)
