@@ -1,3 +1,10 @@
 /renders/
 /models/
+/results_sys_baseline/
+/results_sys_high/
+/results_sys_moderate/
+.cache/
 .env
+system_msgs.json
+prompt_engineering.py
+prompts.json
