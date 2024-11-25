@@ -19,34 +19,27 @@ def save_scad_code(scad_code, filename):
     print(f"[DEBUG] OpenSCAD code saved successfully at {filepath}")
     return filepath
 
-def render_model(scad_file, output_image):
-    """
-    Render the .scad file to an image using OpenSCAD.
-    """
-    renders_dir = 'renders'
-    os.makedirs(renders_dir, exist_ok=True)
-    output_path = os.path.join(renders_dir, output_image)
-
-    cmd = [
+def render_model(scad_filepath, output_image, view_params=None):
+    """Renders OpenSCAD model to image"""
+    output_path = os.path.join("renders", output_image)
+    
+    command = [
         'openscad',
         '-o', output_path,
-        '--imgsize={},{}'.format(*IMAGE_SIZE),
-        '--view=64.10,356.50,34.60,25.40,4.02,46.29,535.52',
-        scad_file
+        '--imgsize=800,600'
     ]
-
-    print(f"[DEBUG] Rendering model to image {output_path}")
-    print(f"[DEBUG] Running command: {' '.join(cmd)}")
-
-    try:
-        result = subprocess.run(cmd, check=True, capture_output=True, text=True)
-        print(f"[DEBUG] Rendered image saved at: {output_path}")
-        return output_path
     
-    except subprocess.CalledProcessError as e:
-        print(f"[ERROR] An error occurred during rendering: {e}")
-        print(f"[ERROR] Return code: {e.returncode}")
-        print(f"[ERROR] Command stderr: {e.stderr}")
-
+    if view_params:
+        command.append(f'--view={view_params}')
+        
+    command.append(scad_filepath)
+    
+    try:
+        result = subprocess.run(command, capture_output=True, text=True)
+        if result.returncode != 0:
+            raise Exception(f"OpenSCAD Error: {result.stderr}")
     except Exception as e:
-        print(f"[ERROR] An unexpected error occurred: {e}")
+        print(f"[ERROR] An error occurred during rendering: {e}")
+        raise
+        
+    return output_path
