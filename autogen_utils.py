@@ -24,10 +24,18 @@ def get_prompt_feedback() -> str:
     You are an image feedback agent. 
     Your role is to examine rendered images (from OpenSCAD code) and confirm whether they match the user’s intended description. 
     If they do match, respond with 'TERMINATE_MATCH'.
+<<<<<<< Updated upstream
     Do not give feedback on the color, pattern, stability or materials, but purely geometric shape. Ignore the surroundings of the model.
     Start your feedback by describing what you see, as a total shape as well as the individual elements and how they are connected.
     Building from the model that you see, give concrete suggestions for each element to be improved, and any elements to be added.
     Structure your feedback as isntructive bullets, each targeting specific modifications, deletions of additions. You must build from what you see.
+=======
+    Do not give feedback on the color.
+    If they don't match provide suggestions for how the scene can be improved in a structured way.
+    First, describe clearly what you see on the image. Then, explain why is does or does not match the descripotion, going through every detail separately.
+    Now,focus on improvements of the shapes present in the image. Then, suggest specific shape additions to achieve better alignment with the user's description.
+    Give your feedback in instructive bullets.
+>>>>>>> Stashed changes
     Start with 'Feedback:'
     """
     return prompt
