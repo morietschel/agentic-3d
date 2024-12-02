@@ -25,6 +25,7 @@ def get_dynamic_model_code(current_scad_code=None, scene_feedback=None):
     if scene_feedback:
         assistant_reply = updated_code_api_call(current_scad_code, scene_feedback)
     else:
+        print("First iteration. Generating initial code based on object description.")
         assistant_reply = initial_code_api_call()
 
     if assistant_reply:
@@ -75,16 +76,19 @@ def render_scene(scad_code, scad_filename='scene.scad', output_image='scene.png'
     return output_path
 
 def main():
-    iteration_count = 0
+    """ 
+        Returns True if function generates matching render, and False if not. 
+    """
+    iteration_count = 1
     match = False
 
     # Get permanent model code
     permanent_model_code = get_permanent_model_code()
     
-    while iteration_count < MAX_ITERATIONS and not match:
+    while iteration_count <= MAX_ITERATIONS and not match:
         print(f"Iteration {iteration_count}...")
 
-        if iteration_count == 0:
+        if iteration_count == 1:
             # Get initial dynamic model code from OpenAI using only user input
             dynamic_model_code = get_dynamic_model_code()
             if not dynamic_model_code:
@@ -105,9 +109,15 @@ def main():
 
         # Get feedback on scene image
         scene_feedback = get_scene_feedback(output_path)
+        if scene_feedback['match']:
+            print(f"Object generation successful. Completed in {iteration_count} iterations.")
+            return True
         #print("scene_feedback:", scene_feedback)
 
         iteration_count += 1
+
+    print(f"Object generation unsuccessfull. Terminated after 10 iterations.")
+    return False
 
 if __name__ == "__main__":
     main()

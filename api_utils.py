@@ -3,9 +3,15 @@ from openai import OpenAI
 from dotenv import load_dotenv
 from pydantic import BaseModel
 from config import SCENE_DESCRIPTION
+import base64
 
 # Load environment variables from .env file
 load_dotenv()
+
+# Function to encode the image
+def encode_image(image_path):
+  with open(image_path, "rb") as image_file:
+    return base64.b64encode(image_file.read()).decode('utf-8')
 
 class ResponseFormatCode(BaseModel):
     message: str
@@ -29,7 +35,7 @@ def initial_code_api_call():
             model="gpt-4o-2024-08-06",
             messages=[
                 {"role": "system", "content": "You are a CAD agent that takes a user request and responds with a message object and executable OpenSCAD code. You only write CAD code to construct the object, never to render or display it."},
-                {"role": "user", "content": "Give me the code for a {SCENE_DESCRIPTION}."}
+                {"role": "user", "content": "Give me the code for{SCENE_DESCRIPTION}."}
             ],
             response_format=ResponseFormatCode
         )
@@ -119,6 +125,10 @@ def feedback_api_call(image_filepath):
     # Initialize OpenAI client
     client = OpenAI(api_key=api_key)
 
+    # Getting the base64 string
+    base64_image = encode_image(image_filepath)
+
+
     try:
         # Create a chat completion for feedback using the client instance
         completion = client.beta.chat.completions.parse(
@@ -135,9 +145,18 @@ def feedback_api_call(image_filepath):
                 },
                 {
                     "role": "user",
-                    "content": (
-                        f"Here is an image located at {image_filepath}. Here is the intended image description: {SCENE_DESCRIPTION}."
-                    )
+                    "content": [
+                                    {
+                                    "type": "text",
+                                    "text": f"The image is attached. Here is the intended image description: {SCENE_DESCRIPTION}."
+                                    },
+                                    {
+                                    "type": "image_url",
+                                    "image_url": {
+                                        "url":  f"data:image/jpeg;base64,{base64_image}"
+                                    },
+                                    },
+                                ],
                 }
             ], 
             response_format=ResponseFormatFeedback
