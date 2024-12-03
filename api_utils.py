@@ -2,7 +2,6 @@ import os
 from openai import OpenAI
 from dotenv import load_dotenv
 from pydantic import BaseModel
-from config import SCENE_DESCRIPTION
 import base64
 
 # Load environment variables from .env file
@@ -21,7 +20,7 @@ class ResponseFormatFeedback(BaseModel):
     match: bool
     feedback: str
 
-def initial_code_api_call():
+def initial_code_api_call(scene_description):
     api_key = os.getenv('OPENAI_API_KEY')
     if not api_key:
         raise ValueError("OpenAI API key is not set. Please set the OPENAI_API_KEY environment variable.")
@@ -34,8 +33,10 @@ def initial_code_api_call():
         completion = client.beta.chat.completions.parse(
             model="gpt-4o-2024-08-06",
             messages=[
-                {"role": "system", "content": "You are a CAD agent that takes a user request and responds with a message object and executable OpenSCAD code. You only write CAD code to construct the object, never to render or display it."},
-                {"role": "user", "content": "Give me the code for{SCENE_DESCRIPTION}."}
+                {"role": "system", "content": "You are a CAD agent that takes a user request and responds with a message object and executable OpenSCAD code. \
+                                               You only write CAD code to construct the object, never to render or display it."
+                },
+                {"role": "user", "content": f"Give me the code for{scene_description}."}
             ],
             response_format=ResponseFormatCode
         )
@@ -61,7 +62,7 @@ def initial_code_api_call():
         # Handle other exceptions
         print(f"[ERROR] An error occurred: {e}")
 
-def updated_code_api_call(current_scad_code, scene_feedback):
+def updated_code_api_call(scene_description, current_scad_code, scene_feedback):
     """
     Calls the API to regenerate SCAD code based on feedback suggestions.
     """
@@ -88,7 +89,7 @@ def updated_code_api_call(current_scad_code, scene_feedback):
                 {
                     "role": "user",
                     "content": (
-                        f"Here is the current SCAD code: '{current_scad_code}'. The scene should depict '{SCENE_DESCRIPTION}'. "
+                        f"Here is the current SCAD code: '{current_scad_code}'. The scene should depict{scene_description}. "
                         f"Based on these suggestions: {scene_feedback}, please regenerate the SCAD code."
                     )
                 }
@@ -117,7 +118,7 @@ def updated_code_api_call(current_scad_code, scene_feedback):
         # Handle other exceptions
         print(f"[ERROR] An error occurred: {e}")
 
-def feedback_api_call(image_filepath):
+def feedback_api_call(scene_description, image_filepath):
     api_key = os.getenv('OPENAI_API_KEY')
     if not api_key:
         raise ValueError("OpenAI API key is not set. Please set the OPENAI_API_KEY environment variable.")
@@ -126,8 +127,8 @@ def feedback_api_call(image_filepath):
     client = OpenAI(api_key=api_key)
 
     # Getting the base64 string
+    print("image_filepath: " + image_filepath)
     base64_image = encode_image(image_filepath)
-
 
     try:
         # Create a chat completion for feedback using the client instance
@@ -148,7 +149,7 @@ def feedback_api_call(image_filepath):
                     "content": [
                                     {
                                     "type": "text",
-                                    "text": f"The image is attached. Here is the intended image description: {SCENE_DESCRIPTION}."
+                                    "text": f"The image is attached. Here is the intended image description:{scene_description}."
                                     },
                                     {
                                     "type": "image_url",

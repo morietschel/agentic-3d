@@ -17,16 +17,16 @@ def get_permanent_model_code():
     '''
     return permanent_model_code
 
-def get_dynamic_model_code(current_scad_code=None, scene_feedback=None):
+def get_dynamic_model_code(scene_description, current_scad_code=None, scene_feedback=None):
     """
     Calls the OpenAI API to get OpenSCAD code based on user input and scene feedback (if inputted).
     Returns the API call reply if there is one.
     """
     if scene_feedback:
-        assistant_reply = updated_code_api_call(current_scad_code, scene_feedback)
+        assistant_reply = updated_code_api_call(scene_description, current_scad_code, scene_feedback)
     else:
         print("First iteration. Generating initial code based on object description.")
-        assistant_reply = initial_code_api_call()
+        assistant_reply = initial_code_api_call(scene_description)
 
     if assistant_reply:
         print("Received OpensSCAD Code")
@@ -35,12 +35,12 @@ def get_dynamic_model_code(current_scad_code=None, scene_feedback=None):
         print("Failed to get a response from the OpenAI API.")
         return None
     
-def get_scene_feedback(output_image):
+def get_scene_feedback(scene_description, output_image):
     """
     Calls the OpenAI API to get feedback based on output image and user input.
     Returns the API call reply if there is one.
     """
-    assistant_reply = feedback_api_call(output_image)
+    assistant_reply = feedback_api_call(scene_description, output_image)
     if assistant_reply:
         print("Received feedback")
         return assistant_reply
@@ -75,7 +75,7 @@ def render_scene(scad_code, scad_filename='scene.scad', output_image='scene.png'
     print("[DEBUG] Rendering process completed")
     return output_path
 
-def main():
+def main(scene_description):
     """ 
         Returns True if function generates matching render, and False if not. 
     """
@@ -90,13 +90,13 @@ def main():
 
         if iteration_count == 1:
             # Get initial dynamic model code from OpenAI using only user input
-            dynamic_model_code = get_dynamic_model_code()
+            dynamic_model_code = get_dynamic_model_code(scene_description)
             if not dynamic_model_code:
                 print("[ERROR] Initial API call failed. Exiting.")
                 return  # Exit if API call failed
         else:
             # Update dynamic model code from OpenAI using user input and scene feedback
-            dynamic_model_code = get_dynamic_model_code(dynamic_model_code, scene_feedback)
+            dynamic_model_code = get_dynamic_model_code(scene_description, dynamic_model_code, scene_feedback)
             if not dynamic_model_code:
                 print("[ERROR] API call failed. Exiting.")
                 return  # Exit if API call failed
@@ -108,7 +108,7 @@ def main():
         output_path = render_scene(combined_scad_code, scad_filename=f'scene{iteration_count}.scad', output_image=f'scene{iteration_count}.png')
 
         # Get feedback on scene image
-        scene_feedback = get_scene_feedback(output_path)
+        scene_feedback = get_scene_feedback(scene_description, output_path)
         if scene_feedback['match']:
             print(f"Object generation successful. Completed in {iteration_count} iterations.")
             return True
@@ -120,4 +120,4 @@ def main():
     return False
 
 if __name__ == "__main__":
-    main()
+    main(SCENE_DESCRIPTION)

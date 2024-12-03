@@ -3,7 +3,7 @@
 # Scene description
 SCENE_DESCRIPTION = " a four legged chair"
 
-# Scene descriptions for testing - Unconventionally Feasible Objects
+# Scene descriptions for testing - Unconventionally Feasible Objects - 50 objects
 UFO_LIST = [' a chair with two legs', ' a chair with three legs', \
         ' a chair with five legs', ' a chair with six legs', ' a chair with seven legs', \
         ' a chair with one armrest', ' a chair with three armrests', ' a chair with two backrests', \
