@@ -1,5 +1,11 @@
 /renders/
 /models/
+/results_sys_baseline
+/results_sys_high
+/results_sys_moderate
+system_msgs.json
+prompts.json
+prompt_engineering.py
 .env
 .cache/41/cache.db
 .cache/42/cache.db
@@ -7,3 +13,6 @@ __pycache__/autogen_utils.cpython-311.pyc
 __pycache__/config.cpython-311.pyc
 __pycache__/scad_utils.cpython-311.pyc
 main_autogen.py
+__pycache__/
+
+
