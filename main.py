@@ -77,9 +77,8 @@ def tool_call(dynamic_model_code: str) -> str:
     permanent_model_code = get_permanent_model_code()
     combined_scad_code = combine_scad_code(permanent_model_code, dynamic_model_code)
     output_path = render_scene(combined_scad_code, scad_filename=f'scene{""}.scad', output_image=f'scene{""}.png')
-    message = f"""
-                Rendering completed, image saved at: <img {output_path}>. 
-            """
+
+    message = f"Rendering completed, image saved at: <img {output_path}>."
     return message
 
 # Set working directory. Use "" to set to pwd
@@ -95,6 +94,7 @@ class Creator(ConversableAgent):
             - n_iters (int, optional): The number of "improvement" iterations to run. Defaults to 2.
             - **kwargs: keyword arguments for the parent AssistantAgent.
         """
+
         super().__init__(**kwargs)
         self.register_reply([Agent, None], reply_func=Creator._reply_user, position=0)
         self._n_iters = n_iters
@@ -105,12 +105,13 @@ class Creator(ConversableAgent):
             error_msg = f"Either {messages=} or {sender=} must be provided."
             logger.error(error_msg)
             raise AssertionError(error_msg)
+        
         if messages is None:
             messages = self._oai_messages[sender]
 
         user_question = messages[-1]["content"]
         
-    ### Define the agents
+        # Define the agents
         commander = AssistantAgent(
             name="Commander",
             human_input_mode="NEVER",
@@ -119,8 +120,8 @@ class Creator(ConversableAgent):
             is_termination_msg=lambda x: x.get("content", "").rstrip().endswith("TERMINATE"),
             llm_config=self.llm_config,
         )
-        # Regitster Tool Use
-        commander.register_for_llm(name="render_code", description="Renders openSCAD code and generates and image from it.")(self.tool)
+        # Register tool use
+        commander.register_for_llm(name="render_code", description="Renders openSCAD code and generates an image from it.")(self.tool)
         
         prompt_improver = ConversableAgent(
             name="Prompt_Improver",
@@ -135,7 +136,7 @@ class Creator(ConversableAgent):
             system_message=get_prompt_coder(),
             llm_config=self.llm_config,
         )
-        # Register Tool Use
+        # Register tool use
         coder.register_for_execution(name="render_code")(self.tool)
         
         critics = MultimodalConversableAgent(
@@ -146,19 +147,19 @@ class Creator(ConversableAgent):
             max_consecutive_auto_reply=self._n_iters,
         )
         
-        # Data Flow Defintion
-        iteration_count  = 0
+        # Data flow defintion
+        iteration_count = 0
         print(f"Iteration {iteration_count}...") 
         
         # ADD PROMPT IMPROVER
         print("Phase 1: Improving Prompt...")
         commander.send(
-                message=f""" 
-                Improve this user description: {user_question}.
-                """,
+                message=f"Improve this user description: {user_question}.",
                 recipient=prompt_improver,
                 request_reply=True,
             )
+        
+        ###### Check that exact scene_description is in content?
         description = commander._oai_messages[prompt_improver][-1]["content"] # This is the point to include the strategies?
         
         commander.initiate_chat(coder, message=f"Please create OpenSCAD code for the following object description: {description}")
@@ -170,9 +171,13 @@ class Creator(ConversableAgent):
         plt.savefig(save_path, bbox_inches='tight', pad_inches=0)
 
         print(f"Starting feedback loop...") 
-        for i in range(self._n_iters):
+        for __ in range(self._n_iters):
             iteration_count += 1
             print(f"Iteration {iteration_count}...") 
+
+
+            ##### Might be an error here. Is it actually sending the photo or do we need to convert the image to base64?
+            ##### Also I think we can play around with these prompts? They are kind of basic right now so maybe we can make them more explicit and clear and see if that helps?
             commander.send(
                 message=f"Here is the image of the current render <img {os.path.join(working_dir, 'renders/scene.png')}>. Here is the intended image description: {description} Please provide actionable feedback.",
                 recipient=critics,
@@ -182,12 +187,13 @@ class Creator(ConversableAgent):
             feedback = commander._oai_messages[critics][-1]["content"]
             if feedback.find("TERMINATE_MATCH") >= 0:
                 break
+
             commander.send(
-                message="Here is the feedback for the image rendered from your code. Please improve the previous code! \n"
-                + feedback,
+                message="Here is the feedback for the image rendered from your code. Please improve the previous code! \n" + feedback,
                 recipient=coder,
                 request_reply=True,
             )
+
             img = Image.open(os.path.join(working_dir, "renders/scene.png"))
             plt.imshow(img)
             plt.axis("off")  # Hide the axes
@@ -196,17 +202,23 @@ class Creator(ConversableAgent):
 
         return True, os.path.join(working_dir, "renders/scene.png")
 
-def main():
+def main(scene_description):
     creator = Creator(name="3D Creator~", tool=tool_call, n_iters=MAX_ITERATIONS, llm_config=llm_config)
     
     user_proxy = autogen.UserProxyAgent(
-    name="User", human_input_mode="NEVER", max_consecutive_auto_reply=0, code_execution_config={"use_docker": False}
+        name="User", 
+        human_input_mode="NEVER", 
+        max_consecutive_auto_reply=0, 
+        code_execution_config={"use_docker": False}
     )
 
     user_proxy.initiate_chat(
         creator,
-        message=SCENE_DESCRIPTION,
+        message=scene_description,
     )
+
+    ##### Where do we get the output of the _reply_user call so that we can check if the generation was successful? 
+    ##### Cause that will affect the test functions in test.py
     
 if __name__ == "__main__":
-    main()
+    main(SCENE_DESCRIPTION)

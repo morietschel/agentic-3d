@@ -14,9 +14,11 @@ def save_scad_code(scad_code, filename):
     os.makedirs(models_dir, exist_ok=True)
     filepath = os.path.join(models_dir, filename)
     print(f"[DEBUG] Saving OpenSCAD code to {filepath}")
+
     with open(filepath, 'w') as f:
         f.write(scad_code)
     print(f"[DEBUG] OpenSCAD code saved successfully at {filepath}")
+    
     return filepath
 
 def render_model(scad_file, output_image):
