@@ -1,7 +1,7 @@
 # config.py
 
 # Scene description
-SCENE_DESCRIPTION = " a four legged chair"
+SCENE_DESCRIPTION = ' a pair of eyeglasses with one round lens and one square lens'
 
 # Scene descriptions for testing - Unconventionally Feasible Objects - 50 objects
 UFO_LIST = [' a chair with two legs', ' a chair with three legs', \

@@ -103,7 +103,7 @@ class Creator(ConversableAgent):
     def _reply_user(self, messages=None, sender=None, config=None):
         if all((messages is None, sender is None)):
             error_msg = f"Either {messages=} or {sender=} must be provided."
-            logger.error(error_msg)
+            logger.error(error_msg) # What is this, I have a squiggly line under 'logger'
             raise AssertionError(error_msg)
         
         if messages is None:
@@ -117,7 +117,7 @@ class Creator(ConversableAgent):
             human_input_mode="NEVER",
             max_consecutive_auto_reply=10,
             system_message=get_prompt_commander(),
-            is_termination_msg=lambda x: x.get("content", "").rstrip().endswith("TERMINATE"),
+            #is_termination_msg=lambda x: x.get("content", "").rstrip().endswith("TERMINATE"),
             llm_config=self.llm_config,
         )
         # Register tool use
@@ -175,18 +175,13 @@ class Creator(ConversableAgent):
             iteration_count += 1
             print(f"Iteration {iteration_count}...") 
 
-
-            ##### Might be an error here. Is it actually sending the photo or do we need to convert the image to base64?
-            ##### Also I think we can play around with these prompts? They are kind of basic right now so maybe we can make them more explicit and clear and see if that helps?
             commander.send(
                 message=f"Here is the image of the current render <img {os.path.join(working_dir, 'renders/scene.png')}>. Here is the intended image description: {description} Please provide actionable feedback.",
                 recipient=critics,
                 request_reply=True,
             )
-
+            
             feedback = commander._oai_messages[critics][-1]["content"]
-            if feedback.find("TERMINATE_MATCH") >= 0:
-                break
 
             commander.send(
                 message="Here is the feedback for the image rendered from your code. Please improve the previous code! \n" + feedback,
@@ -200,6 +195,7 @@ class Creator(ConversableAgent):
             save_path = os.path.join(working_dir, f"renders/scene{iteration_count}.png")
             plt.savefig(save_path, bbox_inches='tight', pad_inches=0)
 
+        # Is this from ConversableAgent documentation? Because I can't change it without causing an error.
         return True, os.path.join(working_dir, "renders/scene.png")
 
 def main(scene_description):
@@ -216,9 +212,6 @@ def main(scene_description):
         creator,
         message=scene_description,
     )
-
-    ##### Where do we get the output of the _reply_user call so that we can check if the generation was successful? 
-    ##### Cause that will affect the test functions in test.py
     
 if __name__ == "__main__":
     main(SCENE_DESCRIPTION)

@@ -20,6 +20,10 @@ class ResponseFormatFeedback(BaseModel):
     match: bool
     feedback: str
 
+class ResponseFormatTest(BaseModel):
+    match: bool
+    rating: int
+
 def initial_code_api_call(scene_description):
     api_key = os.getenv('OPENAI_API_KEY')
     if not api_key:
@@ -170,6 +174,75 @@ def feedback_api_call(scene_description, image_filepath):
             print("Message:")
             print(assistant_reply.parsed.feedback)
             return {'match': assistant_reply.parsed.match, 'feedback': assistant_reply.parsed.feedback}
+        elif assistant_reply.refusal:
+            # Handle refusal
+            print("Refusal:")
+            print(assistant_reply.refusal)
+
+    except OpenAI.LengthFinishReasonError as e:
+        # Retry with a higher max tokens or handle accordingly
+        print("Too many tokens:", e)
+
+    except Exception as e:
+        # Handle other exceptions
+        print(f"[ERROR] An error occurred: {e}")
+
+def test_api_call(scene_description, image_filepath):
+    api_key = os.getenv('OPENAI_API_KEY')
+    if not api_key:
+        raise ValueError("OpenAI API key is not set. Please set the OPENAI_API_KEY environment variable.")
+
+    # Initialize OpenAI client
+    client = OpenAI(api_key=api_key)
+
+    # Getting the base64 string
+    print("image_filepath: " + image_filepath)
+    base64_image = encode_image(image_filepath)
+
+    try:
+        # Create a chat completion for feedback using the client instance
+        completion = client.beta.chat.completions.parse(
+            model="gpt-4o-2024-08-06",
+            messages=[
+                {
+                    "role": "system",
+                    "content": (
+                        "You are an image feedback agent. Your role is to examine rendered images "
+                        "and confirm whether they match the user’s intended description. If they do match, "
+                        "give an explicit boolean 'True' answer. If they don't match, give an explicit boolean 'False' answer only."
+                        "Additionally, rate the image on a scale of 1 to 10 for how well "
+                        "the rendered image represents the intended description. A rating of 1 means the render DOES NOT match the "
+                        "scene description and is very poor. A rating of 5 means the render DOES match the intended scene description "
+                        "but it is not very good. A rating of 10 means the render perfectly matches the intended scene description and "
+                        "the render does not need to be altered at all."
+                    )
+                },
+                {
+                    "role": "user",
+                    "content": [
+                                    {
+                                    "type": "text",
+                                    "text": f"The image is attached. Here is the intended image description:{scene_description}."
+                                    },
+                                    {
+                                    "type": "image_url",
+                                    "image_url": {
+                                        "url":  f"data:image/jpeg;base64,{base64_image}"
+                                    },
+                                    },
+                                ],
+                }
+            ], 
+            response_format=ResponseFormatTest
+        )
+
+        # Extract the assistant's reply
+        assistant_reply = completion.choices[0].message
+        if assistant_reply.parsed:
+            # Print message and return OpenScad Code
+            print("Match:")
+            print(assistant_reply.parsed.match)
+            return {'match': assistant_reply.parsed.match, 'rating': assistant_reply.parsed.rating}
         elif assistant_reply.refusal:
             # Handle refusal
             print("Refusal:")
