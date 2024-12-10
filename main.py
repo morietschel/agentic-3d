@@ -159,7 +159,6 @@ class Creator(ConversableAgent):
                 request_reply=True,
             )
         
-        ###### Check that exact scene_description is in content?
         description = commander._oai_messages[prompt_improver][-1]["content"] # This is the point to include the strategies?
         
         commander.initiate_chat(coder, message=f"Please create OpenSCAD code for the following object description: {description}")
