@@ -255,3 +255,11 @@ def test_api_call(scene_description, image_filepath):
     except Exception as e:
         # Handle other exceptions
         print(f"[ERROR] An error occurred: {e}")
+        
+def remove_cache():
+    """
+    Remove the cache database Autogen creates.
+    """
+    print("[DEBUG] Removing cache database.")
+    os.remove(CACHE_DB)
+    print("[DEBUG] Cache database removed successfully.")

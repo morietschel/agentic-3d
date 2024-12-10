@@ -5,6 +5,7 @@ from scad_utils import save_scad_code, render_model
 from autogen import Agent, AssistantAgent, ConversableAgent, UserProxyAgent
 from autogen.agentchat.contrib.multimodal_conversable_agent import MultimodalConversableAgent
 from config import SCENE_DESCRIPTION, MAX_ITERATIONS
+from api_utils import remove_cache
 import matplotlib.pyplot as plt
 from PIL import Image
 import autogen
@@ -196,6 +197,7 @@ class Creator(ConversableAgent):
             plt.savefig(save_path, bbox_inches='tight', pad_inches=0)
 
         # Is this from ConversableAgent documentation? Because I can't change it without causing an error.
+        remove_cache()
         return True, os.path.join(working_dir, "renders/scene.png")
 
 def main(scene_description):
