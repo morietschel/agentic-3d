@@ -6,6 +6,7 @@ import base64
 
 # Load environment variables from .env file
 load_dotenv()
+CACHE_DB = ".cache/41/cache.db"
 
 # Function to encode the image
 def encode_image(image_path):
