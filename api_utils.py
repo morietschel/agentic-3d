@@ -6,6 +6,7 @@ import base64
 
 # Load environment variables from .env file
 load_dotenv()
+CACHE_DB = ".cache/41/cache.db"
 
 # Function to encode the image
 def encode_image(image_path):
@@ -255,3 +256,11 @@ def test_api_call(scene_description, image_filepath):
     except Exception as e:
         # Handle other exceptions
         print(f"[ERROR] An error occurred: {e}")
+        
+def remove_cache():
+    """
+    Remove the cache database Autogen creates.
+    """
+    print("[DEBUG] Removing cache database.")
+    os.remove(CACHE_DB)
+    print("[DEBUG] Cache database removed successfully.")
