@@ -4,8 +4,8 @@ from autogen_utils import get_prompt_critics, get_prompt_coder, get_prompt_comma
 from scad_utils import save_scad_code, render_model
 from autogen import Agent, AssistantAgent, ConversableAgent, UserProxyAgent
 from autogen.agentchat.contrib.multimodal_conversable_agent import MultimodalConversableAgent
-from config import SCENE_DESCRIPTION, MAX_ITERATIONS
-from api_utils import remove_cache
+from config import SCENE_DESCRIPTION, NUM_VERSIONS
+from api_utils_openai import remove_cache
 import matplotlib.pyplot as plt
 from PIL import Image
 import autogen
@@ -16,7 +16,6 @@ load_dotenv()
 # LLM configuration
 llm_config = {"config_list": [{"model": "gpt-4o-mini", "api_key": os.getenv('OPENAI_API_KEY')}]}
 llm_config_critics = {"config_list": [{"model": "gpt-4o-mini", "api_key": os.getenv('OPENAI_API_KEY')}], "max_tokens": 500}
-
 
 # Other helper functions
 def get_permanent_model_code():
@@ -50,7 +49,7 @@ def combine_scad_code(permanent_code, dynamic_code):
     '''
     return combined_code
 
-def render_scene(scad_code, scad_filename='scene.scad', output_image='scene.png'):
+def render_scene(scad_code, scad_filename='scene.scad', output_image='current_scene.png'):
     """
     Saves the SCAD code to a file and renders it to an image. 
     Returns the output path.
@@ -77,7 +76,7 @@ def tool_call(dynamic_model_code: str) -> str:
     """
     permanent_model_code = get_permanent_model_code()
     combined_scad_code = combine_scad_code(permanent_model_code, dynamic_model_code)
-    output_path = render_scene(combined_scad_code, scad_filename=f'scene{""}.scad', output_image=f'scene{""}.png')
+    output_path = render_scene(combined_scad_code, scad_filename='current_scene.scad', output_image='current_scene.png')
 
     message = f"Rendering completed, image saved at: <img {output_path}>."
     return message
@@ -86,13 +85,13 @@ def tool_call(dynamic_model_code: str) -> str:
 working_dir = ""
 
 class Creator(ConversableAgent):
-    def __init__(self, tool, n_iters=2, **kwargs):
+    def __init__(self, tool, n_iters=10, **kwargs):
         """
         Initializes a Creator instance.
         This agent facilitates the creation of 3D models through a collaborative effort among its child agents: commander, coder, and critics.
 
         Parameters:
-            - n_iters (int, optional): The number of "improvement" iterations to run. Defaults to 2.
+            - n_iters (int, optional): The number of "improvement" iterations to run. Defaults to 10.
             - **kwargs: keyword arguments for the parent AssistantAgent.
         """
 
@@ -104,7 +103,7 @@ class Creator(ConversableAgent):
     def _reply_user(self, messages=None, sender=None, config=None):
         if all((messages is None, sender is None)):
             error_msg = f"Either {messages=} or {sender=} must be provided."
-            logger.error(error_msg) # What is this, I have a squiggly line under 'logger'
+            #logger.error(error_msg)
             raise AssertionError(error_msg)
         
         if messages is None:
@@ -118,7 +117,6 @@ class Creator(ConversableAgent):
             human_input_mode="NEVER",
             max_consecutive_auto_reply=10,
             system_message=get_prompt_commander(),
-            #is_termination_msg=lambda x: x.get("content", "").rstrip().endswith("TERMINATE"),
             llm_config=self.llm_config,
         )
         # Register tool use
@@ -160,14 +158,15 @@ class Creator(ConversableAgent):
                 request_reply=True,
             )
         
-        description = commander._oai_messages[prompt_improver][-1]["content"] # This is the point to include the strategies?
+        description = commander._oai_messages[prompt_improver][-1]["content"]
         
         commander.initiate_chat(coder, message=f"Please create OpenSCAD code for the following object description: {description}")
-        img = Image.open(os.path.join(working_dir, "renders/scene.png"))
+        img = Image.open(os.path.join(working_dir, "renders/current_scene.png"))
         plt.imshow(img)
         plt.axis("off") # Hide the axes
+        
         # Save the image
-        save_path = os.path.join(working_dir, f"renders/scene{iteration_count}.png")
+        save_path = os.path.join(working_dir, f"renders/scene-version{iteration_count}.png")
         plt.savefig(save_path, bbox_inches='tight', pad_inches=0)
 
         print(f"Starting feedback loop...") 
@@ -176,7 +175,7 @@ class Creator(ConversableAgent):
             print(f"Iteration {iteration_count}...") 
 
             commander.send(
-                message=f"Here is the image of the current render <img {os.path.join(working_dir, 'renders/scene.png')}>. Here is the intended image description: {description} Please provide actionable feedback.",
+                message=f"Here is the image of the current render <img {os.path.join(working_dir, 'renders/current_scene.png')}>. Here is the intended image description: {description} Please provide actionable feedback.",
                 recipient=critics,
                 request_reply=True,
             )
@@ -189,18 +188,17 @@ class Creator(ConversableAgent):
                 request_reply=True,
             )
 
-            img = Image.open(os.path.join(working_dir, "renders/scene.png"))
+            img = Image.open(os.path.join(working_dir, "renders/current_scene.png"))
             plt.imshow(img)
             plt.axis("off")  # Hide the axes
-            save_path = os.path.join(working_dir, f"renders/scene{iteration_count}.png")
+            save_path = os.path.join(working_dir, f"renders/scene-version{iteration_count}.png")
             plt.savefig(save_path, bbox_inches='tight', pad_inches=0)
 
-        # Is this from ConversableAgent documentation? Because I can't change it without causing an error.
         remove_cache()
-        return True, os.path.join(working_dir, "renders/scene.png")
+        return True, os.path.join(working_dir, "renders/current_scene.png")
 
 def main(scene_description):
-    creator = Creator(name="3D Creator~", tool=tool_call, n_iters=MAX_ITERATIONS, llm_config=llm_config)
+    creator = Creator(name="3D Creator~", tool=tool_call, n_iters=NUM_VERSIONS, llm_config=llm_config)
     
     user_proxy = autogen.UserProxyAgent(
         name="User", 

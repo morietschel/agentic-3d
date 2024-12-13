@@ -18,11 +18,9 @@ class ResponseFormatCode(BaseModel):
     OpenScadCode: str
 
 class ResponseFormatFeedback(BaseModel):
-    match: bool
     feedback: str
 
 class ResponseFormatTest(BaseModel):
-    match: bool
     rating: int
 
 def initial_code_api_call(scene_description):
@@ -106,14 +104,12 @@ def updated_code_api_call(scene_description, current_scad_code, scene_feedback):
         assistant_reply = completion.choices[0].message
         if assistant_reply.parsed:
             # Print message and return OpenScad Code
-            print("Message:")
-            print(assistant_reply.parsed.message)
+            print(f"Message: {assistant_reply.parsed.message}")
             return assistant_reply.parsed.OpenScadCode
         
         elif assistant_reply.refusal:
             # Handle refusal
-            print("Refusal:")
-            print(assistant_reply.refusal)
+            print(f"Refusal: {assistant_reply.refusal}")
 
     except OpenAI.LengthFinishReasonError as e:
         # Retry with a higher max tokens or handle accordingly
@@ -144,9 +140,9 @@ def feedback_api_call(scene_description, image_filepath):
                     "role": "system",
                     "content": (
                         "You are an image feedback agent. Your role is to examine rendered images "
-                        "and confirm whether they match the user’s intended description. Give an explicit boolean 'True' answer "
-                        "if they do match. If they don't match, give an explicit boolean 'False' answer and "
-                        "provide suggestions for how the scene can be improved."
+                        "and confirm whether they match the user’s intended description. "
+                        "If they do match, explicitly say so and that the OpenSCAD code should stay the same. "
+                        "If they do not match, explicitly say so and provide suggestions for how the scene can be improved."
                     )
                 },
                 {
@@ -172,13 +168,11 @@ def feedback_api_call(scene_description, image_filepath):
         assistant_reply = completion.choices[0].message
         if assistant_reply.parsed:
             # Print message and return OpenScad Code
-            print("Message:")
-            print(assistant_reply.parsed.feedback)
-            return {'match': assistant_reply.parsed.match, 'feedback': assistant_reply.parsed.feedback}
+            print(f"Feedback: {assistant_reply.parsed.feedback}")
+            return {'feedback': assistant_reply.parsed.feedback}
         elif assistant_reply.refusal:
             # Handle refusal
-            print("Refusal:")
-            print(assistant_reply.refusal)
+            print(f"Refusal: {assistant_reply.refusal}")
 
     except OpenAI.LengthFinishReasonError as e:
         # Retry with a higher max tokens or handle accordingly
@@ -209,10 +203,8 @@ def test_api_call(scene_description, image_filepath):
                     "role": "system",
                     "content": (
                         "You are an image feedback agent. Your role is to examine rendered images "
-                        "and confirm whether they match the user’s intended description. If they do match, "
-                        "give an explicit boolean 'True' answer. If they don't match, give an explicit boolean 'False' answer only."
-                        "Additionally, rate the image on a scale of 1 to 10 for how well "
-                        "the rendered image represents the intended description. A rating of 1 means the render DOES NOT match the "
+                        "and rate them on a scale of 1 to 10 for how well "
+                        "each rendered image represents the intended description. A rating of 1 means the render DOES NOT match the "
                         "scene description and is very poor. A rating of 5 means the render DOES match the intended scene description "
                         "but it is not very good. A rating of 10 means the render perfectly matches the intended scene description and "
                         "the render does not need to be altered at all."
@@ -241,13 +233,11 @@ def test_api_call(scene_description, image_filepath):
         assistant_reply = completion.choices[0].message
         if assistant_reply.parsed:
             # Print message and return OpenScad Code
-            print("Match:")
-            print(assistant_reply.parsed.match)
-            return {'match': assistant_reply.parsed.match, 'rating': assistant_reply.parsed.rating}
+            print(f"Rating: {assistant_reply.parsed.rating}")
+            return {'rating': assistant_reply.parsed.rating}
         elif assistant_reply.refusal:
             # Handle refusal
-            print("Refusal:")
-            print(assistant_reply.refusal)
+            print(f"Refusal: {assistant_reply.refusal}")
 
     except OpenAI.LengthFinishReasonError as e:
         # Retry with a higher max tokens or handle accordingly

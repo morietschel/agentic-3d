@@ -1,7 +1,8 @@
 import main
-from config import UFO_LIST, SCENE_DESCRIPTION
-from api_utils import test_api_call
+from config import OBJECTS_LIST, SCENE_DESCRIPTION
+from api_utils_openai import test_api_call
 from collections import defaultdict
+import pandas as pd
 
 # Instead, loop through all generations and if there is at least one success, then can count that as a success overall
 # Can also keep track of which iteration it got the first success on
@@ -15,40 +16,95 @@ def test_one_object():
     ratings = defaultdict(list)
     first_success = {}
 
-    for i in range(10):
+    for i in range(1, 4):
         success = False
         main.main(SCENE_DESCRIPTION)
 
-        for j in range(10):
+        for j in range(1, 11):
             # API call to check if generation was successful, to rate generation on scale of 1-10
             # If successful, add to num_sucesses
-            output = test_api_call(SCENE_DESCRIPTION, f"renders/scene{j}.png")
-            match = output['match']
+            output = test_api_call(SCENE_DESCRIPTION, f"renders/scene-version{j}.png")
+            rating = output['rating']
 
             # Add rating for each generation to ratings dictionary
-            ratings[f"iteration{i}"].append(output['rating'])
+            ratings[f"iteration{i}"].append(rating)
 
-            if match:
+            if rating >= 5:
+                print(f"Version {j} MATCHED")
                 num_successes += 1
                 if not success:
-                    first_success[f"iteration{i}"] = j + 1
+                    first_success[f"iteration{i}"] = j
                     success = True
+            else:
+                print(f"Version {j} NOT MATCHED")
 
         if num_successes >= 1:
             successes_overall += 1
+            print("Successes_overall:", successes_overall)
     
     # Rough for now, can be changed
-    return {"Success rate": successes_overall / 10, "Ratings": ratings, "Generations until first success": first_success}
+    return {"Success rate": successes_overall / 3, "Ratings": dict(ratings), "Generations until first success": first_success}
 
+def test_objects():
+    output_table = pd.DataFrame({"Object": [], "Mean Initial Quality Score": [], "Mean Final Quality Score": [], "Mean Max Quality Score": [], "Mean Overall Score Improvement": [], "Mean Iterations to First Success": [], "Mean Quality Score": []})
 
-# NOT FIXED YET
-def test_UFOs():
-    num_successes = 0
-    for i in range(50):
-        if main.main(UFO_LIST[i]):
-            num_successes += 1
-    
-    return f"Success rate on UFO_LIST: {num_successes / 50}"
+    for i in range(1, 3): # go through all of the objects
+        num_successes = 0
+        successes_overall = 0
+        ratings = defaultdict(list)
+        first_success = {}
 
-print(test_one_object())
-#print(test_UFOs())
+        for j in range(1, 4):
+            success = False
+            main.main(OBJECTS_LIST[i])
+
+            for k in range(1, 11):
+                output = test_api_call(OBJECTS_LIST[i], f"renders/scene-version{k}.png")
+                rating = output['rating']
+
+                # Add rating for each generation to ratings dictionary
+                ratings[f"iteration{j}"].append(rating)
+
+                if rating >= 5:
+                    print(f"Version {k} MATCHED")
+                    num_successes += 1
+                    if not success:
+                        first_success[f"iteration{j}"] = j
+                        success = True
+                else:
+                    print(f"Version {k} NOT MATCHED")
+
+            if num_successes >= 1:
+                successes_overall += 1
+                print("Successes_overall:", successes_overall)
+
+        ratings = dict(ratings)
+        initial_quality_scores = 0
+        final_quality_scores = 0
+        score_improvements = 0
+        mean_scores = 0
+        max_quality_scores = 0
+        for key in ratings.keys():
+            initial_quality_scores += ratings[key][0]
+            final_quality_scores += ratings[key][9]
+            max_score = max(ratings[key])
+            min_score = min(ratings[key])
+            score_improvements += max_score - min_score
+            max_quality_scores += max_score
+            mean_scores += sum(ratings[key]) / 10
+
+        print("initial quality scores:", initial_quality_scores)
+        mean_first_success = sum(first_success.values()) / 3 if first_success else 0
+        mean_initial_quality_score = initial_quality_scores / 3
+        mean_final_quality_score = final_quality_scores / 3
+        mean_max_quality_score = max_quality_scores / 3
+        mean_score_improvement = score_improvements / 3
+        overall_mean_score = mean_scores / 3
+
+        new_row = pd.DataFrame({"Object": [OBJECTS_LIST[i]], "Mean Initial Quality Score": [mean_initial_quality_score], "Mean Final Quality Score": [mean_final_quality_score], "Mean Max Quality Score": [mean_max_quality_score], "Mean Overall Score Improvement": [mean_score_improvement], "Mean Iterations to First Success": [mean_first_success], "Mean Quality Score": [overall_mean_score]})
+        output_table = pd.concat([output_table, new_row], ignore_index=True)
+
+    return output_table #{"Success rate": successes_overall / 3, "Ratings": dict(ratings), "Generations until first success": first_success}
+
+#print(test_one_object())
+print(test_objects())
