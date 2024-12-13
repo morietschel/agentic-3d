@@ -48,7 +48,7 @@ def test_one_object():
 def test_objects():
     output_table = pd.DataFrame({"Object": [], "Mean Initial Quality Score": [], "Mean Final Quality Score": [], "Mean Max Quality Score": [], "Mean Overall Score Improvement": [], "Mean Iterations to First Success": [], "Mean Quality Score": []})
 
-    for i in range(1, 3): # go through all of the objects
+    for i in range(1): # go through all of the objects
         num_successes = 0
         successes_overall = 0
         ratings = defaultdict(list)
@@ -103,6 +103,25 @@ def test_objects():
 
         new_row = pd.DataFrame({"Object": [OBJECTS_LIST[i]], "Mean Initial Quality Score": [mean_initial_quality_score], "Mean Final Quality Score": [mean_final_quality_score], "Mean Max Quality Score": [mean_max_quality_score], "Mean Overall Score Improvement": [mean_score_improvement], "Mean Iterations to First Success": [mean_first_success], "Mean Quality Score": [overall_mean_score]})
         output_table = pd.concat([output_table, new_row], ignore_index=True)
+        print("Output Table")
+        print(output_table)
+
+    numerical_cols = output_table.select_dtypes(include="number")
+    column_averages = numerical_cols.mean()
+    print("Column averages", column_averages)
+    output_table.loc["Average"] = column_averages
+    output_table.loc["Average", "Object"] = "N/A"
+
+    output_table.to_csv("metrics_by_object.csv")
+
+    # get metrics by complexity level
+    """ complexity_table = output_table.drop(columns=["Object", "Mean Initial Quality Score", "Mean Final Quality Score", "Mean Max Quality Score"])
+    complexity_table["Group"] = complexity_table.index // 5
+    complexity_table = complexity_table.groupby("Group").mean()
+    complexity_table.reset_index(drop=True, inplace=True)
+    complexity_table.insert(0, "Level", ["Easy", "Medium", "Hard"])
+    print(complexity_table)
+    complexity_table.to_csv("metrics_by_complexity.csv") """
 
     return output_table #{"Success rate": successes_overall / 3, "Ratings": dict(ratings), "Generations until first success": first_success}
 
