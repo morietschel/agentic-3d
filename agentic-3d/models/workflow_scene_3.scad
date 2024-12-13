@@ -13,64 +13,38 @@
     
 
     // Dynamic Model
-    union() {
-    // Seat with a slight curve for comfort
-    translate([0, 0, 5])
     difference() {
-        hull() {
-            translate([-25, -25, 0]) circle(r=25);
-            translate([25, -25, 0]) circle(r=25);
-            translate([-25, 25, 0]) circle(r=25);
-            translate([25, 25, 0]) circle(r=25);
-        }
-        translate([0, 0, -1])
-        hull() {
-            translate([-24, -24, 0]) circle(r=24);
-            translate([24, -24, 0]) circle(r=24);
-            translate([-24, 24, 0]) circle(r=24);
-            translate([24, 24, 0]) circle(r=24);
+    // Create the outer flared conical shape of the lampshade
+    hull() {
+        for (angle = [0, 360, 720]) {
+            rotate([0, 0, angle])
+                translate([20, 0, 0])
+                    scale([1, 1 - angle / 720, 1])
+                        cylinder(h = 30, r = 25, center = true);
         }
     }
 
-    // Ergonomic backrest
-    translate([0, -25, 15])
-    rotate([15, 0, 0])
-    linear_extrude(height=30) {
-        polygon(points=[[0,0], [-25,30], [25,30]]);
-    }
+    // Create the inner hollow for the lampshade
+    translate([0, 0, 1])
+        hull() {
+            for (angle = [0, 360, 720]) {
+                rotate([0, 0, angle])
+                    translate([15, 0, 0])
+                        scale([1, 1 - angle / 720, 1])
+                            cylinder(h = 30, r = 20, center = true);
+            }
+        }
 
-    // Front legs with a tapered design
-    translate([-15, -15, 0])
-    linear_extrude(height=25) {
-        polygon(points=[[0,0], [5,0], [3,-10], [-3,-10], [-5,0]]);
-    } 
-    translate([-15, 15, 0])
-    linear_extrude(height=25) {
-        polygon(points=[[0,0], [5,0], [3,-10], [-3,-10], [-5,0]]);
-    } 
+    // Create the base hole for the light bulb fitting
+    translate([0, 0, -1])
+        cylinder(h = 8, r = 6, center = true);
 
-    // Rear legs with a slightly larger tapered design
-    translate([15, -15, 0])
-    linear_extrude(height=30) {
-        polygon(points=[[0,0], [6,0], [4,-12], [-4,-12], [-6,0]]);
-    } 
-    translate([15, 15, 0])
-    linear_extrude(height=30) {
-        polygon(points=[[0,0], [6,0], [4,-12], [-4,-12], [-6,0]]);
-    }
-
-    // Optional curved armrests
-    translate([-30, 0, 15])
-    rotate([0, 0, 30])
-    linear_extrude(height=5)
-    offset(r=5) {
-        polygon(points=[[0,0], [25,0], [20,-5], [5,-5]]);
-    }
-    translate([30, 0, 15])
-    rotate([0, 0, -30])
-    linear_extrude(height=5)
-    offset(r=5) {
-        polygon(points=[[0,0], [25,0], [20,-5], [5,-5]]);
+    // Add decorative elements (seams for realism)
+    for (i = [0:5]) {
+        translate([0, 0, i * 6])
+            rotate_extrude(angle = 360)
+                translate([0, 15, 0])
+                    circle(r = 0.6);
     }
 }
     

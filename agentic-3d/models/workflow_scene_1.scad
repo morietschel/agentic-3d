@@ -13,34 +13,20 @@
     
 
     // Dynamic Model
-    union() {
-    // Seat
-    translate([0, 0, 10])
-    cube([50, 50, 5], center=true);
-
-    // Backrest
-    translate([0, -25, 15])
-    rotate([0, 0, 10])
-    cube([54, 5, 30], center=true);
+    difference() {
+    // Create the outer flared shape of the lampshade
+    difference() {
+        rotate_extrude(angle = 360) 
+            translate([30, 0, 0]) 
+                polygon(points=[[0, 0], [0, 20], [15, 30], [30, 20], [30, 0]]);
+        translate([0, 0, 1]) 
+            rotate_extrude(angle = 360) 
+                translate([22, 0, 0]) 
+                    polygon(points=[[0, 0], [0, 20], [12, 28], [20, 20], [20, 0]]);
+    }
     
-    // Side supports for the backrest
-    translate([-27, -25, 15])
-    rotate([0, 0, 0])
-    cube([5, 40, 10], center=true);
-    translate([27, -25, 15])
-    cube([5, 40, 10], center=true);
-
-    // Front leg structure
-    translate([-20, -20, 0])
-    rotate([0, 0, 0])
-    cube([5, 5, 30], center=true);
-    translate([-20, 20, 0])
-    cube([5, 5, 30], center=true);
-    
-    // Rear leg structure
-    translate([20, -20, 0])
-    cube([5, 5, 30], center=true);
-    translate([20, 20, 0])
-    cube([5, 5, 30], center=true);
+    // Create the base hole for the light bulb fitting
+    translate([0, 0, -1])
+        cylinder(h = 5, r = 10, center = true);
 }
     

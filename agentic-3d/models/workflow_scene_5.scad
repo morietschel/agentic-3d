@@ -13,52 +13,24 @@
     
 
     // Dynamic Model
-    union() {
-    // Define the seat of the chair with a broader shape for comfort
+    difference() {
+    // Create the outer shape of a bell-style lampshade
+    cylinder(h = 30, r1 = 25, r2 = 20, center = true);
+
+    // Create the inner hollow for the lampshade with a smooth transition
+    translate([0, 0, 2])
+        cylinder(h = 28, r1 = 23, r2 = 18, center = true);
+
+    // Create a brim at the bottom edge of the lampshade for stability
+    translate([0, 0, -1])
+        cylinder(h = 2, r = 27, center = true);
+
+    // Create the base hole for the light bulb fitting
+    translate([0, 0, -1])
+        cylinder(h = 5, r = 7, center = true);
+
+    // Create the holder for the light bulb
     translate([0, 0, 5])
-    difference() {
-        scale([1, 1, 0.5])
-        cube([50, 50, 10], center=true);
-        translate([0, 0, -1])
-        scale([1, 1, 0.5])
-        cube([48, 48, 10], center=true);
-    }
-
-    // Create an ergonomic backrest with a distinct curve
-    translate([0, -25, 15])
-    rotate([15, 0, 0])
-    difference() {
-        scale([1, 1, 0.5])
-        rotate_extrude(angle=180)
-        translate([20, 0, 0])
-        circle(r=5);
-        translate([-10, -10, 5])
-        rotate_extrude(angle=180)
-        translate([20, 0, 0])
-        circle(r=6);
-    }
-
-    // Design functional, straight legs for stability
-    for (x = [-20, 20]) {
-        translate([x, -25, 0])
-        cube([5, 5, 25], center=false);
-    }
-
-    // Adding the rear legs with a slight angle for aesthetics
-    for (x = [-20, 20]) {
-        translate([x, 25, 0])
-        rotate([0, 20, 0])
-        cube([5, 5, 30], center=false);
-    }
-
-    // Optional armrests, designed to enhance comfort
-    for (x = [-30, 30]) {
-        translate([x, 0, 15])
-        rotate([0, 0, 15 * sign(x)])
-        linear_extrude(height=5)
-        offset(r=1) {
-            polygon(points=[[0,0], [25,0], [20,-5], [5,-5]]);
-        }
-    }
+        cylinder(h = 5, r = 8, center = true);
 }
     

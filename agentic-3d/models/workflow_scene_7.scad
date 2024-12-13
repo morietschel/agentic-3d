@@ -13,63 +13,38 @@
     
 
     // Dynamic Model
-    union() {
-    // Define the ergonomic seat of the chair with improved proportions
+    difference() {
+    // Create the outer shape of a bell-style lampshade with a smooth, flowing profile
+    scale([1, 1, 0.9])
+        hull() {
+            for (i = [0, 1, 2, 3, 4]) {
+                rotate(i * 360 / 5)
+                    translate([20, 0, 0])
+                        circle(r = 28 + 4 * sin(i * 360 / 5 / 4)); // Using sine for smoothness
+            }
+        }
+
+    // Create the inner hollow for the lampshade with a smooth transition
+    scale([1, 1, 0.9])
+        translate([0, 0, 2])
+            hull() {
+                for (i = [0, 1, 2, 3, 4]) {
+                    rotate(i * 360 / 5)
+                        translate([18, 0, 0])
+                            circle(r = 24 + 3 * sin(i * 360 / 5 / 4)); // Inner curves
+                }
+            }
+
+    // Create a decorative brim at the bottom edge of the lampshade for enhanced visual interest
+    translate([0, 0, -1])
+        cylinder(h = 3, r = 30, center = true);
+
+    // Create the base hole for the light bulb fitting
+    translate([0, 0, -1])
+        cylinder(h = 5, r = 8, center = true);
+
+    // Create the holder for the light bulb
     translate([0, 0, 5])
-    difference() {
-        scale([1.1, 1.1, 0.5])
-        cube([45, 45, 8], center=true);
-        translate([0, 0, -0.5])
-        scale([1, 1, 0.5])
-        cube([43, 43, 8], center=true);
-    }
-
-    // Create a more defined and stylish curved backrest
-    translate([0, -30, 10])
-    rotate([25, 0, 0])
-    difference() {
-        scale([1, 1, 0.5])
-        rotate_extrude(angle=180)
-        translate([15, 0, 0])
-        circle(r=7);
-        translate([-10, -10, 5])
-        rotate_extrude(angle=180)
-        translate([15, 0, 0])
-        circle(r=8);
-    }
-
-    // Design stable splayed legs for aesthetic and strength
-    for (x = [-17.5, 17.5]) {
-        translate([x, -23, 0])
-        rotate([0, 0, -15 * sign(x)]) {
-            cylinder(r=2, h=25, center=false);
-        }
-    }
-
-    // Adding tapered rear legs for style and stability
-    for (x = [-17.5, 17.5]) {
-        translate([x, 23, 0])
-        rotate([0, 15, 0]) {
-            cylinder(r=2, h=30, center=false);
-        }
-    }
-
-    // Optional modern armrests with smooth lines
-    for (x = [-30, 30]) {
-        translate([x, 0, 12])
-        rotate([0, 0, 15 * sign(x)])
-        linear_extrude(height=5)
-        offset(r=0.5) {
-            polygon(points=[[0,0], [22,0], [18,-3], [4,-3]]);
-        }
-    }
-
-    // Adding decorative cutouts to enhance aesthetic appeal
-    translate([-22, 0, 6])
-    difference() {
-        cube([10, 45, 2], center=true);
-        translate([1, 4, 0])
-        cube([8, 36, 2], center=true);
-    }
+        cylinder(h = 7, r = 6, center = true);
 }
     

@@ -13,44 +13,28 @@
     
 
     // Dynamic Model
-    union() {
-    // Seat
-    translate([0, 0, 5])
     difference() {
-        cube([50, 50, 5], center=true); // Main seat
-        translate([0, 0, -1])
-        cube([48, 48, 6], center=true); // Cutout for better contact with the print bed
+    // Create the outer flared shape of the lampshade
+    difference() {
+        rotate_extrude(angle = 360)
+            translate([25, 0, 0])
+                polygon(points=[[0, 0], [0, 30], [12, 45], [25, 30], [25, 0]]);
+        translate([0, 0, 1])
+            rotate_extrude(angle = 360)
+                translate([20, 0, 0])
+                    polygon(points=[[0, 0], [0, 28], [10, 40], [18, 28], [18, 0]]);
     }
-
-    // Backrest
-    translate([0, -25, 10])
-    rotate([15, 0, 0])
-    cube([50, 5, 30], center=true); // Angled backrest
-
-    // Side supports for the backrest
-    translate([-26, -25, 10])
-    cube([4, 40, 10], center=true); // Left support
-    translate([26, -25, 10])
-    cube([4, 40, 10], center=true); // Right support
-
-    // Front legs
-    translate([-20, -20, 0])
-    cube([5, 5, 25], center=true); // Left front leg
-    translate([-20, 20, 0])
-    cube([5, 5, 25], center=true); // Right front leg
-
-    // Rear legs
-    translate([20, -20, 0])
-    cube([5, 5, 25], center=true); // Left rear leg
-    translate([20, 20, 0])
-    cube([5, 5, 25], center=true); // Right rear leg
-
-    // Optional Armrests
-    translate([-30, -15, 15])
-    rotate([0, 0, -15])
-    cube([30, 5, 5], center=true); // Left armrest
-    translate([30, -15, 15])
-    rotate([0, 0, 15])
-    cube([30, 5, 5], center=true); // Right armrest
+    
+    // Create the base hole for the light bulb fitting
+    translate([0, 0, -1])
+        cylinder(h = 5, r = 8, center = true);
+    
+    // Add seams for realism
+    for (i = [0:5]) {
+        translate([0, 0, i * 6])
+            rotate_extrude(angle = 360)
+                translate([0, 20, 0])
+                    circle(r = 0.5);
+    }
 }
     

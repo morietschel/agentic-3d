@@ -80,3 +80,4 @@ class ConstraintStrategy(BaseStrategy):
         self, user_description: str, material: str, properties: str
     ) -> str:
         return f"Generate OpenSCAD code for the following object description: {user_description} Generate OpenSCAD code for the following object description: {user_description}. The object should be made of {material} and have the following properties: {properties}."
+
