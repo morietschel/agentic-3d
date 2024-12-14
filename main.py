@@ -85,7 +85,7 @@ def tool_call(dynamic_model_code: str) -> str:
 working_dir = ""
 
 class Creator(ConversableAgent):
-    def __init__(self, tool, n_iters=10, **kwargs):
+    def __init__(self, tool, n_iters=NUM_VERSIONS, **kwargs):
         """
         Initializes a Creator instance.
         This agent facilitates the creation of 3D models through a collaborative effort among its child agents: commander, coder, and critics.

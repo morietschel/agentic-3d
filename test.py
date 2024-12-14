@@ -1,5 +1,5 @@
 import main
-from config import OBJECTS_LIST, SCENE_DESCRIPTION
+from config import OBJECTS_LIST, SCENE_DESCRIPTION, NUM_REPLICATIONS, NUM_VERSIONS
 from api_utils_openai import test_api_call
 from collections import defaultdict
 import pandas as pd
@@ -16,11 +16,11 @@ def test_one_object():
     ratings = defaultdict(list)
     first_success = {}
 
-    for i in range(1, 4):
+    for i in range(1, NUM_REPLICATIONS + 1):
         success = False
         main.main(SCENE_DESCRIPTION)
 
-        for j in range(1, 11):
+        for j in range(1, NUM_VERSIONS + 1):
             # API call to check if generation was successful, to rate generation on scale of 1-10
             # If successful, add to num_sucesses
             output = test_api_call(SCENE_DESCRIPTION, f"renders/scene-version{j}.png")
@@ -43,7 +43,7 @@ def test_one_object():
             print("Successes_overall:", successes_overall)
     
     # Rough for now, can be changed
-    return {"Success rate": successes_overall / 3, "Ratings": dict(ratings), "Generations until first success": first_success}
+    return {"Success rate": successes_overall / NUM_REPLICATIONS, "Ratings": dict(ratings), "Generations until first success": first_success}
 
 def test_objects():
     output_table = pd.DataFrame({"Object": [], "Mean Initial Quality Score": [], "Mean Final Quality Score": [], "Mean Max Quality Score": [], "Mean Overall Score Improvement": [], "Mean Iterations to First Success": [], "Mean Quality Score": []})
@@ -54,11 +54,11 @@ def test_objects():
         ratings = defaultdict(list)
         first_success = {}
 
-        for j in range(1, 4):
+        for j in range(1, NUM_REPLICATIONS + 1):
             success = False
             main.main(OBJECTS_LIST[i])
 
-            for k in range(1, 11):
+            for k in range(1, NUM_VERSIONS + 1):
                 output = test_api_call(OBJECTS_LIST[i], f"renders/scene-version{k}.png")
                 rating = output['rating']
 
@@ -86,20 +86,20 @@ def test_objects():
         max_quality_scores = 0
         for key in ratings.keys():
             initial_quality_scores += ratings[key][0]
-            final_quality_scores += ratings[key][9]
+            final_quality_scores += ratings[key][NUM_VERSIONS - 1]
             max_score = max(ratings[key])
             min_score = min(ratings[key])
             score_improvements += max_score - min_score
             max_quality_scores += max_score
-            mean_scores += sum(ratings[key]) / 10
+            mean_scores += sum(ratings[key]) / NUM_VERSIONS
 
         print("initial quality scores:", initial_quality_scores)
-        mean_first_success = sum(first_success.values()) / 3 if first_success else 0
-        mean_initial_quality_score = initial_quality_scores / 3
-        mean_final_quality_score = final_quality_scores / 3
-        mean_max_quality_score = max_quality_scores / 3
-        mean_score_improvement = score_improvements / 3
-        overall_mean_score = mean_scores / 3
+        mean_first_success = sum(first_success.values()) / NUM_REPLICATIONS if first_success else 0
+        mean_initial_quality_score = initial_quality_scores / NUM_REPLICATIONS
+        mean_final_quality_score = final_quality_scores / NUM_REPLICATIONS
+        mean_max_quality_score = max_quality_scores / NUM_REPLICATIONS
+        mean_score_improvement = score_improvements / NUM_REPLICATIONS
+        overall_mean_score = mean_scores / NUM_REPLICATIONS
 
         new_row = pd.DataFrame({"Object": [OBJECTS_LIST[i]], "Mean Initial Quality Score": [mean_initial_quality_score], "Mean Final Quality Score": [mean_final_quality_score], "Mean Max Quality Score": [mean_max_quality_score], "Mean Overall Score Improvement": [mean_score_improvement], "Mean Iterations to First Success": [mean_first_success], "Mean Quality Score": [overall_mean_score]})
         output_table = pd.concat([output_table, new_row], ignore_index=True)
