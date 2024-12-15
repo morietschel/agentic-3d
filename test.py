@@ -4,12 +4,6 @@ from api_utils_openai import test_api_call
 from collections import defaultdict
 import pandas as pd
 
-# Instead, loop through all generations and if there is at least one success, then can count that as a success overall
-# Can also keep track of which iteration it got the first success on
-
-# How many iterations were successful
-
-# Get both 'T' or 'F' for whether generation was successful, but also ask model to give generation a score 1-10 of how good it is
 def test_one_object():
     num_successes = 0
     successes_overall = 0
@@ -21,8 +15,6 @@ def test_one_object():
         main.main(SCENE_DESCRIPTION)
 
         for j in range(1, NUM_VERSIONS + 1):
-            # API call to check if generation was successful, to rate generation on scale of 1-10
-            # If successful, add to num_sucesses
             output = test_api_call(SCENE_DESCRIPTION, f"renders/scene-version{j}.png")
             rating = output['rating']
 
@@ -42,13 +34,12 @@ def test_one_object():
             successes_overall += 1
             print("Successes_overall:", successes_overall)
     
-    # Rough for now, can be changed
     return {"Success rate": successes_overall / NUM_REPLICATIONS, "Ratings": dict(ratings), "Generations until first success": first_success}
 
 def test_objects():
     output_table = pd.DataFrame({"Object": [], "Mean Initial Quality Score": [], "Mean Final Quality Score": [], "Mean Max Quality Score": [], "Mean Overall Score Improvement": [], "Mean Iterations to First Success": [], "Mean Quality Score": []})
 
-    for i in range(1): # go through all of the objects
+    for i in range(1, 16): # go through all of the objects
         num_successes = 0
         successes_overall = 0
         ratings = defaultdict(list)
@@ -115,13 +106,13 @@ def test_objects():
     output_table.to_csv("metrics_by_object.csv")
 
     # get metrics by complexity level
-    """ complexity_table = output_table.drop(columns=["Object", "Mean Initial Quality Score", "Mean Final Quality Score", "Mean Max Quality Score"])
+    complexity_table = output_table.drop(columns=["Object", "Mean Initial Quality Score", "Mean Final Quality Score", "Mean Max Quality Score"])
     complexity_table["Group"] = complexity_table.index // 5
     complexity_table = complexity_table.groupby("Group").mean()
     complexity_table.reset_index(drop=True, inplace=True)
     complexity_table.insert(0, "Level", ["Easy", "Medium", "Hard"])
     print(complexity_table)
-    complexity_table.to_csv("metrics_by_complexity.csv") """
+    complexity_table.to_csv("metrics_by_complexity.csv")
 
     return output_table #{"Success rate": successes_overall / 3, "Ratings": dict(ratings), "Generations until first success": first_success}
 

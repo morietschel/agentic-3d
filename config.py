@@ -9,13 +9,13 @@ LLM_CHOICES = {'gpt-4o': 'gpt-4o-2024-08-06', 'gpt-4o-mini': 'gpt-4o-mini-2024-0
 SCENE_DESCRIPTION = " a mug with a handle"
 
 # Objects to test
-OBJECTS_LIST = [" a chair with four legs", " a table with four legs", " a pyramid", "a circular bowl", "a cylindrical bottle", \
-           " a curved vase", " a candle with a flame", " a mug with a handle", " a desk lamp", " a wine glass", \
-           " a car with four wheels", "a spiral staircase", " a cathedral", " a pair of eye glasses", " a wrist watch"]
+OBJECTS_LIST = [" a chair", " a table", " a pyramid", " a bowl", " a bottle", \
+           " a vase", " a candle with a wick", " a mug with a handle", " a desk lamp", " a wine glass", \
+           " a car", "a spiral staircase", " a cathedral", " a pair of eye glasses", " a wrist watch"]
 
-OBJECTS_DICT = {"Easy": [" a chair with four legs", " a table with four legs", " a pyramid", "a circular bowl", "a cylindrical bottle"], 
-                "Medium": [" a curved vase", " a candle with a flame", " a mug with a handle", " a desk lamp", " a wine glass"], 
-                "Hard": [" a car with four wheels", "a spiral staircase", " a cathedral", " a pair of eye glasses", " a wrist watch"]}
+OBJECTS_DICT = {"Easy": [" a chair", " a table", " a pyramid", " a bowl", " a bottle"],
+                "Medium": [" a vase", " a candle with a wick", " a mug with a handle", " a desk lamp", " a wine glass"],
+                "Hard": [" a car", "a spiral staircase", " a cathedral", " a pair of eye glasses", " a wrist watch"]}
 
 # Scene descriptions for testing - Unconventionally Feasible Objects - 50 objects
 UFO_LIST = [' a chair with two legs', ' a chair with three legs', \
