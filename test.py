@@ -97,15 +97,18 @@ def test_objects():
         print("Output Table")
         print(output_table)
 
+        # Print so you can see the current table after each object
+        output_table.to_csv("metrics_by_object.csv")
+
+    # Final save at the end
     numerical_cols = output_table.select_dtypes(include="number")
     column_averages = numerical_cols.mean().round(3)
     print("Column averages", column_averages)
     output_table.loc["Average"] = column_averages
     output_table.loc["Average", "Object"] = "N/A"
-
     output_table.to_csv("metrics_by_object.csv")
 
-    # get metrics by complexity level
+    # Get metrics by complexity level
     complexity_table = output_table.drop(columns=["Object", "Mean Initial Quality Score", "Mean Final Quality Score", "Mean Max Quality Score"])
     complexity_table["Group"] = complexity_table.index // 5
     complexity_table = complexity_table.groupby("Group").mean().round(3)
