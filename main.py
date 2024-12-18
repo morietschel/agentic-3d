@@ -14,8 +14,8 @@ import autogen
 load_dotenv()
 
 # LLM configuration
-llm_config = {"config_list": [{"model": "gpt-4o-mini", "api_key": os.getenv('OPENAI_API_KEY')}]}
-llm_config_critics = {"config_list": [{"model": "gpt-4o-mini", "api_key": os.getenv('OPENAI_API_KEY')}], "max_tokens": 500}
+llm_config = {"config_list": [{"model": "gpt-4o", "api_key": os.getenv('OPENAI_API_KEY')}]}
+llm_config_critics = {"config_list": [{"model": "gpt-4o", "api_key": os.getenv('OPENAI_API_KEY')}], "max_tokens": 500}
 
 # Other helper functions
 def get_permanent_model_code():

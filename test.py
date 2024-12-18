@@ -68,6 +68,9 @@ def test_objects():
             if num_successes >= 1:
                 successes_overall += 1
                 print("Successes_overall:", successes_overall)
+            
+            if not success:
+                first_success[f"iteration{j}"] = 10
 
         ratings = dict(ratings)
         initial_quality_scores = 0
@@ -98,7 +101,7 @@ def test_objects():
         print(output_table)
 
         # Print so you can see the current table after each object
-        output_table.to_csv("metrics_by_object.csv")
+        output_table.to_csv(f"metrics_by_object{i}.csv")
 
     # Final save at the end
     numerical_cols = output_table.select_dtypes(include="number")
@@ -110,14 +113,22 @@ def test_objects():
 
     # Get metrics by complexity level
     complexity_table = output_table.drop(columns=["Object", "Mean Initial Quality Score", "Mean Final Quality Score", "Mean Max Quality Score"])
-    complexity_table["Group"] = complexity_table.index // 5
+    # Group indices into groups of 5
+    num_rows = len(complexity_table)
+    groups = [i // 5 for i in range(num_rows)]
+    complexity_table["Group"] = groups
+    # Group by 'Group' and compute the mean
     complexity_table = complexity_table.groupby("Group").mean().round(3)
+    # Reset the index
     complexity_table.reset_index(drop=True, inplace=True)
-    complexity_table.insert(0, "Level", ["Easy", "Medium", "Hard"])
+    # Insert levels into the table
+    levels = ["Easy", "Medium", "Hard"]
+    complexity_table.insert(0, "Level", levels)
+    # Output the table
     print(complexity_table)
-    complexity_table.to_csv("metrics_by_complexity.csv")
+    complexity_table.to_csv("metrics_by_complexity.csv", index=False)
 
-    return output_table #{"Success rate": successes_overall / 3, "Ratings": dict(ratings), "Generations until first success": first_success}
+    return output_table 
 
 #print(test_one_object())
 print(test_objects())
